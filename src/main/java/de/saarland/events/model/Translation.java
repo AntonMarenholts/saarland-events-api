@@ -1,12 +1,11 @@
 package de.saarland.events.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-// import lombok.Data; // Убираем Data
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "translations")
-// @Data // Убрали!
 @NoArgsConstructor
 public class Translation {
 
@@ -25,6 +24,7 @@ public class Translation {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id", nullable = false)
+    @JsonBackReference // <-- ДОБАВЛЕНА ЭТА АННОТАЦИЯ
     private Event event;
 
 

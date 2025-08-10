@@ -1,8 +1,7 @@
 package de.saarland.events.model;
 
 import jakarta.persistence.*;
-// import lombok.Data; // Убираем Data
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 
 import java.time.LocalDateTime;
@@ -11,8 +10,6 @@ import java.util.List;
 
 @Entity
 @Table(name = "events")
-// @Data // Убрали!
-
 @AllArgsConstructor
 public class Event {
 
@@ -27,10 +24,10 @@ public class Event {
     @JoinColumn(name = "city_id", nullable = false)
     private City city;
 
-
     private String imageUrl;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JsonManagedReference // <-- ДОБАВЛЕНА ЭТА АННОТАЦИЯ
     private List<Translation> translations = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -43,6 +40,7 @@ public class Event {
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Reminder> reminders = new ArrayList<>();
+
 
     public Event() {}
 
