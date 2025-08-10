@@ -27,10 +27,6 @@ public class EventSpecification {
 
             predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("eventDate"), LocalDateTime.now().toLocalDate().atStartOfDay()));
 
-            if (year.isEmpty() && month.isEmpty()) {
-                LocalDateTime twoYearsFromNow = LocalDateTime.now().plusMonths(24);
-                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("eventDate"), twoYearsFromNow));
-            }
 
             // Фильтры
             cityName.ifPresent(c -> predicates.add(criteriaBuilder.equal(root.get("city").get("name"), c)));
