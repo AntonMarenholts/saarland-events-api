@@ -23,10 +23,22 @@ public class CategoryController {
         this.categoryMapper = categoryMapper;
     }
 
+//    @GetMapping
+//    public ResponseEntity<List<CategoryDto>> getAllCategories() {
+//        List<CategoryDto> categories = categoryService.getAllCategories().stream()
+//                .map(categoryMapper::toDto)
+//                .collect(Collectors.toList());
+//        return ResponseEntity.ok(categories);
+//    }
+
     @GetMapping
     public ResponseEntity<List<CategoryDto>> getAllCategories() {
+        // Тестовый вывод в консоль, чтобы мы увидели его в логах Heroku
+        System.out.println("НОВАЯ ВЕРСИЯ КОНТРОЛЛЕРА РАБОТАЕТ!");
+
         List<CategoryDto> categories = categoryService.getAllCategories().stream()
                 .map(categoryMapper::toDto)
+                .peek(dto -> dto.setName("TEST_" + dto.getName())) // <-- Добавляем префикс для теста
                 .collect(Collectors.toList());
         return ResponseEntity.ok(categories);
     }
