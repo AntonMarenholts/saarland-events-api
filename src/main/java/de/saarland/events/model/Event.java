@@ -1,9 +1,8 @@
 package de.saarland.events.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference; // <-- ДОБАВЛЕН ЭТОТ ИМПОРТ
 import jakarta.persistence.*;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,66 +40,23 @@ public class Event {
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Reminder> reminders = new ArrayList<>();
 
-
     public Event() {}
 
-    // --- ЯВНО ДОБАВЛЕННЫЕ ГЕТТЕРЫ И СЕТТЕРЫ ---
-
-    public List<Reminder> getReminders() {
-        return reminders;
-    }
-
-    public void setReminders(List<Reminder> reminders) {
-        this.reminders = reminders;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public LocalDateTime getEventDate() {
-        return eventDate;
-    }
-
-    public void setEventDate(LocalDateTime eventDate) {
-        this.eventDate = eventDate;
-    }
-
+    // --- Геттеры и сеттеры ---
+    public List<Reminder> getReminders() { return reminders; }
+    public void setReminders(List<Reminder> reminders) { this.reminders = reminders; }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public LocalDateTime getEventDate() { return eventDate; }
+    public void setEventDate(LocalDateTime eventDate) { this.eventDate = eventDate; }
     public City getCity() { return city; }
     public void setCity(City city) { this.city = city; }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
-    public List<Translation> getTranslations() {
-        return translations;
-    }
-
-    public void setTranslations(List<Translation> translations) {
-        this.translations = translations;
-    }
-
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-    public EStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(EStatus status) {
-        this.status = status;
-    }
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+    public List<Translation> getTranslations() { return translations; }
+    public void setTranslations(List<Translation> translations) { this.translations = translations; }
+    public Category getCategory() { return category; }
+    public void setCategory(Category category) { this.category = category; }
+    public EStatus getStatus() { return status; }
+    public void setStatus(EStatus status) { this.status = status; }
 }
