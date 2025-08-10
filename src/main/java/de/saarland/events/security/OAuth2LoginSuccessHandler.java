@@ -7,7 +7,7 @@ import de.saarland.events.security.jwt.JwtUtils;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.beans.factory.annotation.Value; // <-- 1. Убедитесь, что этот импорт добавлен
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -23,6 +23,10 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     private final UserRepository userRepository;
     private final JwtUtils jwtUtils;
 
+    // 2. Добавляем новое поле для URI перенаправления
+    @Value("${app.oauth2.redirectUri}")
+    private String redirectUri;
+
     public OAuth2LoginSuccessHandler(UserRepository userRepository, JwtUtils jwtUtils) {
         this.userRepository = userRepository;
         this.jwtUtils = jwtUtils;
@@ -34,7 +38,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         Map<String, Object> attributes = oauthUser.getAttributes();
         String email = (String) attributes.get("email");
 
-        // 1. Ищем пользователя по email. Если нет - создаем нового.
+        // Ищем пользователя по email. Если нет - создаем нового.
         User user = userRepository.findByEmail(email)
                 .orElseGet(() -> {
                     User newUser = new User();
@@ -50,11 +54,10 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                     return userRepository.save(newUser);
                 });
 
-        // ▼▼▼ ИЗМЕНЕНИЕ ЗДЕСЬ ▼▼▼
-        // 2. Генерируем токен, используя наш новый, простой метод
+        // Генерируем токен
         String jwt = jwtUtils.generateTokenFromUsername(user.getUsername());
 
-        // 3. Перенаправляем пользователя на фронтенд с токеном
-        response.sendRedirect("http://localhost:5173/auth/callback?token=" + jwt);
+        // 3. Используем новую переменную для перенаправления пользователя на фронтенд с токеном
+        response.sendRedirect(redirectUri + "?token=" + jwt);
     }
 }
