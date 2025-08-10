@@ -1,5 +1,6 @@
 package de.saarland.events.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference; // <-- ДОБАВИТЬ ЭТОТ ИМПОРТ
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -13,21 +14,22 @@ public class Reminder {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference("user-reminder") // <-- ДОБАВИТЬ ЭТУ АННОТАЦИЮ
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id", nullable = false)
+    @JsonBackReference("event-reminder") // <-- ДОБАВИТЬ ЭТУ АННОТАЦИЮ
     private Event event;
 
     @Column(nullable = false)
-    private LocalDateTime remindAt; // Время, когда нужно отправить напоминание
+    private LocalDateTime remindAt;
 
     @Column(nullable = false)
-    private boolean isSent = false; // Отметка, что напоминание уже отправлено
+    private boolean isSent = false;
 
-    // Конструкторы, геттеры и сеттеры
+    // --- Конструкторы, геттеры и сеттеры ---
     public Reminder() {}
-
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public User getUser() { return user; }
