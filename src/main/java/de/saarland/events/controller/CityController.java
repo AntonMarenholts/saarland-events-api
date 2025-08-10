@@ -1,4 +1,4 @@
-// src/main/java/de/saarland/events/controller/CityController.java
+
 
 package de.saarland.events.controller;
 
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/cities") // Этот контроллер будет отвечать за путь /api/cities
+@RequestMapping("/api/cities")
 public class CityController {
 
     private final CityService cityService;
@@ -25,13 +25,13 @@ public class CityController {
         this.cityMapper = cityMapper;
     }
 
-    @GetMapping // Этот метод будет обрабатывать GET-запросы
+    @GetMapping
     public ResponseEntity<List<CityDto>> getAllCities() {
         // Получаем все города из сервиса
         List<CityDto> cities = cityService.getAllCities().stream()
-                .map(cityMapper::toDto) // Превращаем каждую сущность City в CityDto
+                .map(cityMapper::toDto)
                 .collect(Collectors.toList());
-        // Отправляем список на фронтенд со статусом 200 OK
+
         return ResponseEntity.ok(cities);
     }
 }

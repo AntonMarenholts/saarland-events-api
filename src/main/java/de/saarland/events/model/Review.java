@@ -28,7 +28,7 @@ public class Review {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    // Конструкторы, геттеры и сеттеры
+
     public Review() {}
 
     public Review(Long id, User user, Event event, int rating, String comment, LocalDateTime createdAt) {
@@ -88,5 +88,5 @@ public class Review {
         this.createdAt = createdAt;
     }
 
-    // ... сгенерируйте геттеры и сеттеры для всех полей ...
+
 }

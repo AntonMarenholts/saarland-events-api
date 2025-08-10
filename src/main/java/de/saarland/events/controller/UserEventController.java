@@ -1,4 +1,4 @@
-// src/main/java/de/saarland/events/controller/UserEventController.java
+
 
 package de.saarland.events.controller;
 

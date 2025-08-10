@@ -1,4 +1,4 @@
-// src/main/java/de/saarland/events/dto/auth/JwtResponse.java
+
 package de.saarland.events.dto.auth;
 
 import java.util.List;

@@ -4,7 +4,7 @@ import de.saarland.events.dto.CategoryDto;
 import de.saarland.events.model.Category;
 import org.springframework.stereotype.Component;
 
-@Component // Помечаем как компонент Spring, чтобы его можно было внедрять в другие классы
+@Component
 public class CategoryMapper {
 
     public CategoryDto toDto(Category category) {
@@ -22,7 +22,7 @@ public class CategoryMapper {
         if (dto == null) {
             return null;
         }
-        // Мы не устанавливаем ID, так как при создании новой категории ID генерируется базой
+
         return new Category(dto.getName(), dto.getDescription());
     }
 }

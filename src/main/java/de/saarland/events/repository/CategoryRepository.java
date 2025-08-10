@@ -7,6 +7,6 @@ import java.util.Optional;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
-    // Spring Data JPA автоматически создаст SQL-запрос по названию этого метода
+
     Optional<Category> findByName(String name);
 }

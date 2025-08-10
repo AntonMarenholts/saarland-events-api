@@ -15,17 +15,17 @@ public class Category {
 
     private String description;
 
-    // --- ИСПРАВЛЕНИЕ: Добавлен конструктор по умолчанию, необходимый для JPA ---
+
     public Category() {
     }
-    // --------------------------------------------------------------------
+
 
     public Category(String name, String description) {
         this.name = name;
         this.description = description;
     }
 
-    // --- Геттеры и сеттеры остаются без изменений ---
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getName() { return name; }

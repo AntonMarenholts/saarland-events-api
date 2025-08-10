@@ -1,8 +1,8 @@
-// src/main/java/de/saarland/events/model/Event.java
+
 
 package de.saarland.events.model;
 
-// ▼▼▼ 1. УБЕДИТЕСЬ, ЧТО ЭТОТ ИМПОРТ ПРИСУТСТВУЕТ ▼▼▼
+
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -29,7 +29,7 @@ public class Event {
 
     private String imageUrl;
 
-    // ▼▼▼ 2. ВОТ ИСПРАВЛЕНИЕ: ВОЗВРАЩЕНА АННОТАЦИЯ ▼▼▼
+
     @JsonManagedReference
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Translation> translations = new ArrayList<>();
@@ -47,7 +47,7 @@ public class Event {
 
     public Event() {}
 
-    // --- Геттеры и сеттеры ---
+
 
     public List<Reminder> getReminders() {
         return reminders;

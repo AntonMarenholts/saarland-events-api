@@ -1,4 +1,4 @@
-// src/main/java/de/saarland/events/security/jwt/JwtUtils.java
+
 
 package de.saarland.events.security.jwt;
 
@@ -59,7 +59,7 @@ public class JwtUtils {
         }
         return false;
     }
-    // ▼▼▼ ДОБАВЬТЕ ЭТОТ НОВЫЙ МЕТОД ▼▼▼
+
     public String generateTokenFromUsername(String username) {
         return Jwts.builder()
                 .setSubject(username)

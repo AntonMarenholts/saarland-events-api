@@ -1,4 +1,4 @@
-// src/main/java/de/saarland/events/dto/auth/MessageResponse.java
+
 package de.saarland.events.dto.auth;
 
 public class MessageResponse {

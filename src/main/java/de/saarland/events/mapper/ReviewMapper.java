@@ -16,7 +16,7 @@ public class ReviewMapper {
         dto.setRating(review.getRating());
         dto.setComment(review.getComment());
         dto.setCreatedAt(review.getCreatedAt());
-        dto.setUsername(review.getUser().getUsername()); // Берем имя из связанной сущности User
+        dto.setUsername(review.getUser().getUsername());
         dto.setUserId(review.getUser().getId());
         return dto;
     }

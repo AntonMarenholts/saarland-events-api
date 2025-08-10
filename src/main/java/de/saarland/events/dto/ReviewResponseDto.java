@@ -8,7 +8,7 @@ public class ReviewResponseDto {
     private int rating;
     private String comment;
     private LocalDateTime createdAt;
-    private String username; // Имя пользователя, оставившего отзыв
+    private String username;
     private Long userId;
 
     // Геттеры и сеттеры

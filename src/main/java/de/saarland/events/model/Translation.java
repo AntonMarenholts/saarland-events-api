@@ -1,6 +1,6 @@
 package de.saarland.events.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference; // <-- ДОБАВЛЕН ЭТОТ ИМПОРТ
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.NoArgsConstructor;
 
@@ -24,10 +24,10 @@ public class Translation {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id", nullable = false)
-    @JsonBackReference // <-- ДОБАВЛЕНА ЭТА АННОТАЦИЯ
+    @JsonBackReference
     private Event event;
 
-    // --- Геттеры и сеттеры ---
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getLocale() { return locale; }

@@ -28,7 +28,7 @@ public class EventController {
             @RequestParam Optional<Long> category,
             @RequestParam Optional<Integer> year,
             @RequestParam Optional<Integer> month,
-            @RequestParam Optional<String> categoryName // <-- НОВЫЙ ПАРАМЕТР
+            @RequestParam Optional<String> categoryName
     ) {
         List<EventResponseDto> events = eventService.findEvents(city, category, year, month, categoryName)
                 .stream()

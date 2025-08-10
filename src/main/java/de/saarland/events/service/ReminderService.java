@@ -32,7 +32,7 @@ public class ReminderService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Event not found"));
 
-        // Проверяем, чтобы дата напоминания была раньше даты события
+
         if (remindAt.isAfter(event.getEventDate())) {
             throw new IllegalArgumentException("Дата напоминания не может быть позже даты события.");
         }
@@ -41,7 +41,7 @@ public class ReminderService {
         reminder.setUser(user);
         reminder.setEvent(event);
         reminder.setRemindAt(remindAt);
-        reminder.setSent(false); // По умолчанию, оно не отправлено
+        reminder.setSent(false);
 
         reminderRepository.save(reminder);
     }

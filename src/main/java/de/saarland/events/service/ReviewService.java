@@ -34,23 +34,23 @@ public class ReviewService {
 
     @Transactional
     public Review createReview(Long eventId, Long userId, ReviewRequestDto reviewDto) {
-        // 1. Проверяем, существуют ли событие и пользователь
+
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + eventId));
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
 
-        // 2. Проверяем, что событие уже прошло
+
         if (event.getEventDate().isAfter(LocalDateTime.now())) {
             throw new IllegalArgumentException("You can only review past events.");
         }
 
-        // 3. Проверяем, не оставлял ли пользователь уже отзыв
+
         reviewRepository.findByEventIdAndUserId(eventId, userId).ifPresent(r -> {
             throw new IllegalArgumentException("User has already reviewed this event.");
         });
 
-        // 4. Если все проверки пройдены, создаем и сохраняем отзыв
+
         Review review = new Review();
         review.setEvent(event);
         review.setUser(user);

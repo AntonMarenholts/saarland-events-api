@@ -19,7 +19,7 @@ public class EventSpecification {
             Optional<Long> categoryId,
             Optional<Integer> year,
             Optional<Integer> month,
-            Optional<String> categoryName // <-- НОВЫЙ ПАРАМЕТР
+            Optional<String> categoryName
     ) {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -28,14 +28,14 @@ public class EventSpecification {
             predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("eventDate"), LocalDateTime.now().toLocalDate().atStartOfDay()));
 
 
-            // Фильтры
+
             cityName.ifPresent(c -> predicates.add(criteriaBuilder.equal(root.get("city").get("name"), c)));
             categoryId.ifPresent(id -> predicates.add(criteriaBuilder.equal(root.get("category").get("id"), id)));
 
-            // ▼▼▼ НОВЫЙ ФИЛЬТР ПО НАЗВАНИЮ КАТЕГОРИИ ▼▼▼
+
             categoryName.ifPresent(name -> predicates.add(criteriaBuilder.equal(root.get("category").get("name"), name)));
 
-            // Фильтр по дате
+
             if (year.isPresent() && month.isPresent()) {
                 LocalDateTime startDate = LocalDateTime.of(year.get(), month.get(), 1, 0, 0);
                 LocalDateTime endDate = startDate.plusMonths(1);

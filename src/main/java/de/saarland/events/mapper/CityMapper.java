@@ -24,10 +24,10 @@ public class CityMapper {
             return null;
         }
         City city = new City(dto.getName());
-        // ▼▼▼ ДОБАВЛЯЕМ КООРДИНАТЫ ▼▼▼
+
         city.setLatitude(dto.getLatitude());
         city.setLongitude(dto.getLongitude());
-        // ▲▲▲ КОНЕЦ ▲▲▲
+
         return city;
     }
 }

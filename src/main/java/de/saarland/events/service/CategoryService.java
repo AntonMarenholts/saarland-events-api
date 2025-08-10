@@ -18,29 +18,29 @@ public class CategoryService {
         this.categoryRepository = categoryRepository;
     }
 
-    // --- ИСПРАВЛЕНИЕ: Добавляем аннотацию @Transactional ---
-    @Transactional(readOnly = true) // Указываем, что это транзакция только для чтения
+
+    @Transactional(readOnly = true)
     public List<Category> getAllCategories() {
         return categoryRepository.findAll();
     }
 
-    // --- ИСПРАВЛЕНИЕ: Добавляем аннотацию @Transactional ---
+
     @Transactional(readOnly = true)
     public Optional<Category> getCategoryById(Long id) {
         return categoryRepository.findById(id);
     }
 
     public Category saveCategory(Category category) {
-        // Проверяем, существует ли категория с таким же именем
+
         Optional<Category> existingCategory = categoryRepository.findByName(category.getName());
         if (existingCategory.isPresent()) {
-            // Если существует, выбрасываем исключение
+
             throw new IllegalArgumentException("Категория с названием '" + category.getName() + "' уже существует.");
         }
         return categoryRepository.save(category);
     }
 
-    // Здесь @Transactional не нужен
+
     public void deleteCategory(Long id) {
         categoryRepository.deleteById(id);
     }

@@ -18,7 +18,7 @@ import java.util.Optional;
 @Service
 public class EventService {
 
-    // ... поля класса остаются без изменений ...
+
     private final EventRepository eventRepository;
     private final CategoryRepository categoryRepository;
     private final CityRepository cityRepository;
@@ -34,14 +34,14 @@ public class EventService {
         this.userRepository = userRepository;
     }
 
-    // ▼▼▼ ОБНОВЛЯЕМ МЕТОД findEvents ▼▼▼
+
     @Transactional(readOnly = true)
     public List<Event> findEvents(Optional<String> city, Optional<Long> categoryId, Optional<Integer> year, Optional<Integer> month, Optional<String> categoryName) {
         Specification<Event> spec = eventSpecification.findByCriteria(city, categoryId, year, month, categoryName);
         return eventRepository.findAll(spec);
     }
 
-    // ... все остальные методы остаются без изменений ...
+
     @Transactional(readOnly = true)
     public Event getEventById(Long id) {
         return eventRepository.findById(id)

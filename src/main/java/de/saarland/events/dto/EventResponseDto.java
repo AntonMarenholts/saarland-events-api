@@ -7,15 +7,15 @@ import java.util.List;
 public class EventResponseDto {
     private Long id;
     private LocalDateTime eventDate;
-    // --- ИЗМЕНЕНИЕ: Заменяем location на city ---
+
     private CityDto city;
-    // ---------------------------------------
+
     private String imageUrl;
     private CategoryDto category;
     private List<TranslationDto> translations;
     private EStatus status;
 
-    // --- Геттеры и сеттеры обновлены ---
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public LocalDateTime getEventDate() { return eventDate; }

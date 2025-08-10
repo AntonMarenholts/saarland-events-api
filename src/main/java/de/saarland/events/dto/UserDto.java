@@ -6,7 +6,7 @@ public class UserDto {
     private String email;
     private String role;
 
-    // Геттеры и сеттеры
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getUsername() { return username; }

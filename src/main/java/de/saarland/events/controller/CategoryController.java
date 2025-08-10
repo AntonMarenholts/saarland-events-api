@@ -23,14 +23,6 @@ public class CategoryController {
         this.categoryMapper = categoryMapper;
     }
 
-//    @GetMapping
-//    public ResponseEntity<List<CategoryDto>> getAllCategories() {
-//        List<CategoryDto> categories = categoryService.getAllCategories().stream()
-//                .map(categoryMapper::toDto)
-//                .collect(Collectors.toList());
-//        return ResponseEntity.ok(categories);
-//    }
-
     @GetMapping
     public ResponseEntity<List<CategoryDto>> getAllCategories() {
 

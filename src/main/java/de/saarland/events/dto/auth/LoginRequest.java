@@ -1,4 +1,4 @@
-// src/main/java/de/saarland/events/dto/auth/LoginRequest.java
+
 package de.saarland.events.dto.auth;
 
 import jakarta.validation.constraints.NotBlank;

@@ -1,4 +1,4 @@
-// src/main/java/de/saarland/events/AdminInitializer.java
+
 
 package de.saarland.events;
 
@@ -34,9 +34,9 @@ public class AdminInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // Проверяем, существует ли пользователь с ролью ADMIN
+
         if (!userRepository.existsByUsername(adminUsername)) {
-            // Если нет, создаем его
+
             User adminUser = new User(
                     adminUsername,
                     adminEmail,

@@ -20,8 +20,7 @@ public class TranslationService {
             return "";
         }
         try {
-            // ▼▼▼ ИЗМЕНЕНИЕ ЗДЕСЬ ▼▼▼
-            // Явно указываем исходный язык как немецкий ("DE")
+
             TextResult result = translator.translateText(text, "DE", targetLang);
             return result.getText();
         } catch (DeepLException | InterruptedException e) {

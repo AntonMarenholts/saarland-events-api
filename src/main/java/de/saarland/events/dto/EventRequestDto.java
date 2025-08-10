@@ -14,10 +14,10 @@ public class EventRequestDto {
     @Future(message = "Дата события должна быть в будущем")
     private LocalDateTime eventDate;
 
-    // --- ИЗМЕНЕНИЕ: Заменяем location на cityId ---
+
     @NotNull(message = "ID города не может быть пустым")
     private Long cityId;
-    // ------------------------------------------
+
 
     private String imageUrl;
 
@@ -28,7 +28,7 @@ public class EventRequestDto {
     @Size(min = 1, message = "Должен быть хотя бы один перевод (немецкий)")
     private List<TranslationDto> translations;
 
-    // --- Геттеры и сеттеры обновлены ---
+
     public LocalDateTime getEventDate() { return eventDate; }
     public void setEventDate(LocalDateTime eventDate) { this.eventDate = eventDate; }
     public Long getCityId() { return cityId; }

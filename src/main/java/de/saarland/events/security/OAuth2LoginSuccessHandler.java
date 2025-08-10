@@ -7,7 +7,7 @@ import de.saarland.events.security.jwt.JwtUtils;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Value; // <-- 1. Убедитесь, что этот импорт добавлен
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -44,20 +44,20 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                     User newUser = new User();
                     newUser.setEmail(email);
 
-                    // Пытаемся получить имя, если нет - используем часть email
+
                     String username = attributes.get("name") != null ? (String) attributes.get("name") : email.split("@")[0];
                     newUser.setUsername(username);
 
                     newUser.setRole(ERole.ROLE_USER);
-                    // Генерируем случайный пароль, так как он нам не нужен, но поле обязательное
+
                     newUser.setPassword(UUID.randomUUID().toString());
                     return userRepository.save(newUser);
                 });
 
-        // Генерируем токен
+
         String jwt = jwtUtils.generateTokenFromUsername(user.getUsername());
 
-        // 3. Используем новую переменную для перенаправления пользователя на фронтенд с токеном
+
         response.sendRedirect(redirectUri + "?token=" + jwt);
     }
 }

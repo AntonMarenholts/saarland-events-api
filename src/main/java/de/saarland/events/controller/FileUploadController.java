@@ -48,11 +48,11 @@ public class FileUploadController {
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + serviceKey)
                     .contentType(MediaType.parseMediaType(file.getContentType()))
                     .bodyValue(file.getBytes())
-                    .retrieve() // Выполнить запрос
-                    .toBodilessEntity() // Нам не нужен ответ, только статус
-                    .block(); // Делаем запрос синхронным (ждем выполнения)
+                    .retrieve()
+                    .toBodilessEntity()
+                    .block();
 
-            // Формируем публичный URL, как и раньше
+
             String publicUrl = supabaseUrl + uploadPath;
 
             return ResponseEntity.ok(Map.of("imageUrl", publicUrl));

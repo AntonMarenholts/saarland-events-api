@@ -20,26 +20,25 @@ public class ReminderTaskService {
         this.emailService = emailService;
     }
 
-    // Запускать эту задачу каждую минуту
-    // cron = "0 * * * * ?" означает "в 0 секунд каждой минуты"
+
     @Scheduled(cron = "0 * * * * ?")
     @Transactional
     public void processReminders() {
         System.out.println("Проверка напоминаний... " + LocalDateTime.now());
 
-        // 1. Находим все напоминания, время которых уже наступило
+
         List<Reminder> dueReminders = reminderRepository.findAllByRemindAtBeforeAndIsSentFalse(LocalDateTime.now());
 
         if (dueReminders.isEmpty()) {
-            return; // Если отправлять нечего, выходим
+            return;
         }
 
         System.out.printf("Найдено %d напоминаний для отправки.\n", dueReminders.size());
 
-        // 2. Проходим по каждому и отправляем email
+
         for (Reminder reminder : dueReminders) {
             emailService.sendReminderEmail(reminder.getUser(), reminder.getEvent());
-            // 3. Помечаем как отправленное, чтобы не отправить снова
+
             reminder.setSent(true);
             reminderRepository.save(reminder);
         }

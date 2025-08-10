@@ -1,4 +1,4 @@
-// src/main/java/de/saarland/events/security/jwt/AuthTokenFilter.java
+
 
 package de.saarland.events.security.jwt;
 

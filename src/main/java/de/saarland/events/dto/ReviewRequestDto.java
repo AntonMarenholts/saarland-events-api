@@ -13,7 +13,7 @@ public class ReviewRequestDto {
 
     private String comment;
 
-    // Геттеры и сеттеры
+
     public Integer getRating() {
         return rating;
     }

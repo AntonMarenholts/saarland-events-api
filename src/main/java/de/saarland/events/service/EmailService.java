@@ -20,12 +20,12 @@ import java.io.IOException;
 @Service
 public class EmailService {
 
-    // 2. Создаем экземпляр логгера
+
     private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
     private final SendGrid sendGrid;
 
-    @Value("${app.email.from}") // Используем свойство из application.properties
+    @Value("${app.email.from}")
     private String fromEmail;
 
     public EmailService(@Value("${SENDGRID_API_KEY}") String sendGridApiKey) {
@@ -52,11 +52,11 @@ public class EmailService {
 
             Response response = sendGrid.api(request);
 
-            // 3. Используем логгер для вывода информации
+
             logger.info("Email reminder sent to {}. Status code: {}", user.getEmail(), response.getStatusCode());
 
         } catch (IOException ex) {
-            // 4. Логируем ошибку и пробрасываем ее дальше
+
             logger.error("Error sending email to {}: {}", user.getEmail(), ex.getMessage());
             throw new RuntimeException("Failed to send email", ex);
         }

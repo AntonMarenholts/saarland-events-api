@@ -30,13 +30,7 @@ public class CityService {
 
     @Transactional
     public City saveCity(City city) {
-        // УДАЛЯЕМ СТАРУЮ ПРОВЕРКУ
-        // Optional<City> existingCity = cityRepository.findByName(city.getName());
-        // if (existingCity.isPresent()) {
-        //     throw new IllegalArgumentException("Город с названием '" + city.getName() + "' уже существует.");
-        // }
 
-        // Просто сохраняем город. База данных сама позаботится об уникальности.
         return cityRepository.save(city);
     }
 
@@ -53,7 +47,7 @@ public class CityService {
         City existingCity = cityRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Город с ID " + id + " не найден"));
 
-        // Проверяем, не пытается ли пользователь присвоить имя, которое уже занято другим городом
+
         Optional<City> cityWithSameName = cityRepository.findByName(cityDetails.getName());
         if (cityWithSameName.isPresent() && !cityWithSameName.get().getId().equals(id)) {
             throw new IllegalArgumentException("Город с названием '" + cityDetails.getName() + "' уже существует.");

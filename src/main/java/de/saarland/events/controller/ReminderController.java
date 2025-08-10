@@ -26,7 +26,7 @@ public class ReminderController {
     }
 
     @PostMapping
-    @PreAuthorize("#request.userId == authentication.principal.id") // Пользователь может создавать напоминание только для себя
+    @PreAuthorize("#request.userId == authentication.principal.id")
     public ResponseEntity<?> setReminder(@RequestBody ReminderRequest request) {
         reminderService.createReminder(request.userId, request.eventId, request.remindAt);
         return ResponseEntity.ok(Map.of("message", "Напоминание успешно установлено!"));

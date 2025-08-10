@@ -46,7 +46,7 @@ public class EventMapper {
         Event event = new Event();
         event.setEventDate(dto.getEventDate());
         event.setImageUrl(dto.getImageUrl());
-        // City и Category будут установлены в сервисе, здесь их не трогаем
+
         event.setTranslations(dto.getTranslations().stream()
                 .map(this::toTranslationEntity)
                 .collect(Collectors.toList()));

@@ -9,7 +9,6 @@ import java.util.List;
 
 @Repository
 public interface ReminderRepository extends JpaRepository<Reminder, Long> {
-    // Этот метод найдет все напоминания, которые нужно отправить прямо сейчас
-    // и которые еще не были отправлены.
+
     List<Reminder> findAllByRemindAtBeforeAndIsSentFalse(LocalDateTime currentTime);
 }

@@ -1,4 +1,4 @@
-// src/main/java/de/saarland/events/dto/StatusUpdateRequest.java
+
 
 package de.saarland.events.dto;
 

@@ -37,11 +37,11 @@ public class ReviewController {
     }
 
     @PostMapping
-    @PreAuthorize("isAuthenticated()") // Только для авторизованных пользователей
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ReviewResponseDto> addReview(@PathVariable Long eventId,
                                                        @Valid @RequestBody ReviewRequestDto reviewRequestDto,
                                                        Authentication authentication) {
-        // Получаем ID пользователя из текущей сессии
+
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         Long userId = userDetails.getId();
 

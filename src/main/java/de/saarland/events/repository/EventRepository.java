@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-// 2. Добавляем JpaSpecificationExecutor<Event>
+
 public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecificationExecutor<Event> {
 
     List<Event> findAllByEventDateGreaterThanEqualOrderByEventDateAsc(LocalDateTime date);

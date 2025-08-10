@@ -1,4 +1,4 @@
-// src/main/java/de/saarland/events/security/services/UserDetailsImpl.java
+
 
 package de.saarland.events.security.services;
 
@@ -43,7 +43,7 @@ public class UserDetailsImpl implements UserDetails {
                 authorities);
     }
 
-    // Геттеры и стандартные методы UserDetails
+
     public Long getId() { return id; }
     public String getEmail() { return email; }
     @Override

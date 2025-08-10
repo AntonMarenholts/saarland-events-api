@@ -6,7 +6,7 @@ public class CityDto {
     private Double latitude;
     private Double longitude;
 
-    // --- Геттеры и Сеттеры ---
+
 
     public Long getId() {
         return id;

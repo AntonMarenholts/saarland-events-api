@@ -26,8 +26,7 @@ public class UserService {
         if (!userRepository.existsById(userId)) {
             throw new EntityNotFoundException("Пользователь с ID " + userId + " не найден.");
         }
-        // ВАЖНО: В реальном приложении здесь должна быть более сложная логика
-        // по очистке связанных данных (событий, напоминаний и т.д.)
+
         userRepository.deleteById(userId);
     }
 }

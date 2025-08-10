@@ -1,4 +1,4 @@
-// src/main/java/de/saarland/events/model/ERole.java
+
 
 package de.saarland.events.model;
 

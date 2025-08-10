@@ -1,14 +1,12 @@
 package de.saarland.events.dto;
 
-// import lombok.Data; // Убираем Data
 
-// @Data // Убрали!
 public class CategoryDto {
     private Long id;
     private String name;
     private String description;
 
-    // --- ЯВНО ДОБАВЛЕННЫЕ ГЕТТЕРЫ И СЕТТЕРЫ ---
+
 
     public Long getId() {
         return id;

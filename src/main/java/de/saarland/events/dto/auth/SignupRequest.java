@@ -1,4 +1,4 @@
-// src/main/java/de/saarland/events/dto/auth/SignupRequest.java
+
 package de.saarland.events.dto.auth;
 
 import jakarta.validation.constraints.*;
