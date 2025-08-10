@@ -24,7 +24,8 @@ public class EventSpecification {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(criteriaBuilder.equal(root.get("status"), EStatus.APPROVED));
-            predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("eventDate"), LocalDateTime.now()));
+            // Мы берем не "сейчас", а "начало текущего дня", чтобы часовой пояс не влиял на выборку
+            predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("eventDate"), LocalDateTime.now().toLocalDate().atStartOfDay()));
 
             if (year.isEmpty() && month.isEmpty()) {
                 LocalDateTime twoYearsFromNow = LocalDateTime.now().plusMonths(24);
