@@ -1,6 +1,7 @@
+// src/main/java/de/saarland/events/model/User.java
+
 package de.saarland.events.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference; // <-- ДОБАВИТЬ ИМПОРТ
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -11,6 +12,7 @@ import java.util.Set;
 @Entity
 @Table(name = "users")
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -38,7 +40,6 @@ public class User {
     @JoinTable(name = "user_favorites",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "event_id"))
-    @JsonManagedReference // <-- ДОБАВИТЬ ЭТУ АННОТАЦИЮ
     private Set<Event> favoriteEvents = new HashSet<>();
 
     public User() {}
@@ -50,7 +51,7 @@ public class User {
         this.role = role;
     }
 
-    // --- Геттеры и сеттеры ---
+    // Геттеры и сеттеры
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getUsername() { return username; }
@@ -61,6 +62,11 @@ public class User {
     public void setPassword(String password) { this.password = password; }
     public ERole getRole() { return role; }
     public void setRole(ERole role) { this.role = role; }
-    public Set<Event> getFavoriteEvents() { return favoriteEvents; }
-    public void setFavoriteEvents(Set<Event> favoriteEvents) { this.favoriteEvents = favoriteEvents; }
+    public Set<Event> getFavoriteEvents() {
+        return favoriteEvents;
+    }
+
+    public void setFavoriteEvents(Set<Event> favoriteEvents) {
+        this.favoriteEvents = favoriteEvents;
+    }
 }
