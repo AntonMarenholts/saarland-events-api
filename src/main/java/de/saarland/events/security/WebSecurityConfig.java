@@ -1,6 +1,8 @@
 package de.saarland.events.security;
 
+import de.saarland.events.security.jwt.AuthEntryPointJwt;
 import de.saarland.events.security.jwt.AuthTokenFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,6 +28,9 @@ import java.util.List;
 public class WebSecurityConfig {
 
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+
+    @Autowired
+    private AuthEntryPointJwt unauthorizedHandler;
 
     public WebSecurityConfig(OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler) {
         this.oAuth2LoginSuccessHandler = oAuth2LoginSuccessHandler;
@@ -63,6 +68,7 @@ public class WebSecurityConfig {
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
         http.csrf(csrf -> csrf.disable())
+                .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**", "/login/oauth2/**").permitAll()
@@ -81,7 +87,5 @@ public class WebSecurityConfig {
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
-
-
     }
 }
