@@ -33,8 +33,7 @@ public class CategoryController {
 
     @GetMapping
     public ResponseEntity<List<CategoryDto>> getAllCategories() {
-        // Тестовый вывод в консоль, чтобы мы увидели его в логах Heroku
-        System.out.println("НОВАЯ ВЕРСИЯ КОНТРОЛЛЕРА РАБОТАЕТ!");
+
 
         List<CategoryDto> categories = categoryService.getAllCategories().stream()
                 .map(categoryMapper::toDto)
