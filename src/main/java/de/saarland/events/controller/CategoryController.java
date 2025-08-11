@@ -29,7 +29,7 @@ public class CategoryController {
 
         List<CategoryDto> categories = categoryService.getAllCategories().stream()
                 .map(categoryMapper::toDto)
-                .peek(dto -> dto.setName("TEST_" + dto.getName())) // <-- Добавляем префикс для теста
+
                 .collect(Collectors.toList());
         return ResponseEntity.ok(categories);
     }
