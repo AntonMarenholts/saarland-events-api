@@ -8,7 +8,6 @@ public class AdminStatsDto {
     private long totalUsers;
     private long totalCategories;
 
-    // Конструктор
     public AdminStatsDto(long totalEvents, long pendingEvents, long approvedEvents, long totalUsers, long totalCategories) {
         this.totalEvents = totalEvents;
         this.pendingEvents = pendingEvents;
@@ -17,7 +16,6 @@ public class AdminStatsDto {
         this.totalCategories = totalCategories;
     }
 
-    // Геттеры и сеттеры
     public long getTotalEvents() { return totalEvents; }
     public void setTotalEvents(long totalEvents) { this.totalEvents = totalEvents; }
     public long getPendingEvents() { return pendingEvents; }

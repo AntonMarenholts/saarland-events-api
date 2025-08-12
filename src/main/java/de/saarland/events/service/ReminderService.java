@@ -34,7 +34,7 @@ public class ReminderService {
 
 
         if (remindAt.isAfter(event.getEventDate())) {
-            throw new IllegalArgumentException("Дата напоминания не может быть позже даты события.");
+            throw new IllegalArgumentException("The reminder date cannot be later than the event date..");
         }
 
         Reminder reminder = new Reminder();

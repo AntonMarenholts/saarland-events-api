@@ -23,7 +23,6 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     private final UserRepository userRepository;
     private final JwtUtils jwtUtils;
 
-    // 2. Добавляем новое поле для URI перенаправления
     @Value("${app.oauth2.redirectUri}")
     private String redirectUri;
 
@@ -38,7 +37,6 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         Map<String, Object> attributes = oauthUser.getAttributes();
         String email = (String) attributes.get("email");
 
-        // Ищем пользователя по email. Если нет - создаем нового.
         User user = userRepository.findByEmail(email)
                 .orElseGet(() -> {
                     User newUser = new User();

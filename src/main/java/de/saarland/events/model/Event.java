@@ -1,7 +1,5 @@
 
-
 package de.saarland.events.model;
-
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -46,7 +44,6 @@ public class Event {
     private List<Reminder> reminders = new ArrayList<>();
 
     public Event() {}
-
 
 
     public List<Reminder> getReminders() {

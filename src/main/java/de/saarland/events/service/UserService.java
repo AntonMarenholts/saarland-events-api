@@ -24,7 +24,7 @@ public class UserService {
     @Transactional
     public void deleteUser(Long userId) {
         if (!userRepository.existsById(userId)) {
-            throw new EntityNotFoundException("Пользователь с ID " + userId + " не найден.");
+            throw new EntityNotFoundException("User with ID " + userId + " not found.");
         }
 
         userRepository.deleteById(userId);

@@ -24,7 +24,7 @@ public class ReminderTaskService {
     @Scheduled(cron = "0 * * * * ?")
     @Transactional
     public void processReminders() {
-        System.out.println("Проверка напоминаний... " + LocalDateTime.now());
+        System.out.println("Checking reminders... " + LocalDateTime.now());
 
 
         List<Reminder> dueReminders = reminderRepository.findAllByRemindAtBeforeAndIsSentFalse(LocalDateTime.now());
@@ -33,7 +33,7 @@ public class ReminderTaskService {
             return;
         }
 
-        System.out.printf("Найдено %d напоминаний для отправки.\n", dueReminders.size());
+        System.out.printf("Found %d reminders to send.\n", dueReminders.size());
 
 
         for (Reminder reminder : dueReminders) {

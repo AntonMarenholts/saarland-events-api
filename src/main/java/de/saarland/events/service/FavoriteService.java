@@ -1,4 +1,3 @@
-// src/main/java/de/saarland/events/service/FavoriteService.java
 
 package de.saarland.events.service;
 

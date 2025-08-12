@@ -9,7 +9,6 @@ import com.sendgrid.helpers.mail.objects.Content;
 import com.sendgrid.helpers.mail.objects.Email;
 import de.saarland.events.model.Event;
 import de.saarland.events.model.User;
-// 1. Импортируем логгер
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,10 +33,10 @@ public class EmailService {
 
     public void sendReminderEmail(User user, Event event) {
         Email to = new Email(user.getEmail());
-        String subject = "Напоминание о событии: " + event.getTranslations().getFirst().getName();
+        String subject = "Event Reminder: " + event.getTranslations().getFirst().getName();
         String textContent = String.format(
-                "Привет, %s!\n\nНапоминаем, что скоро начнется событие, которое вы сохранили: '%s'.\nОно состоится %s.\n\n" +
-                        "С наилучшими пожеланиями, команда Афиши Саарланда!",
+                "Hello, %s!\n\nWe remind you that the event you saved will start soon: '%s'.\nIt will happen %s.\n\n" +
+                        "Best wishes, the Afisha Saarland team!",
                 user.getUsername(),
                 event.getTranslations().getFirst().getName(),
                 event.getEventDate().toString()

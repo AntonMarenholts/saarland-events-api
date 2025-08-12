@@ -18,7 +18,7 @@ public class JwtResponse {
         this.email = email;
         this.roles = roles;
     }
-    // Геттеры и сеттеры
+
     public String getToken() { return token; }
     public void setToken(String token) { this.token = token; }
     public String getType() { return type; }

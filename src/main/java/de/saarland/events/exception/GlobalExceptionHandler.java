@@ -29,12 +29,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
 
         if (ex.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
-            Map<String, String> response = Map.of("error", "Объект с таким именем уже существует.");
+            Map<String, String> response = Map.of("error", "An object with this name already exists..");
 
             return new ResponseEntity<>(response, HttpStatus.CONFLICT);
         }
 
-        Map<String, String> response = Map.of("error", "Ошибка целостности данных.");
+        Map<String, String> response = Map.of("error", "Data integrity error.");
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 }

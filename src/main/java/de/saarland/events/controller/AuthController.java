@@ -9,7 +9,7 @@ import de.saarland.events.model.User;
 import de.saarland.events.repository.UserRepository;
 import de.saarland.events.security.jwt.JwtUtils;
 import de.saarland.events.security.services.UserDetailsImpl;
-import jakarta.servlet.http.HttpServletRequest; // <-- 1. ДОБАВЛЯЕМ ИМПОРТ
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,7 +18,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.util.StringUtils; // <-- 2. ДОБАВЛЯЕМ ИМПОРТ
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    // ... конструктор и методы signin, signup остаются без изменений ...
+
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final PasswordEncoder encoder;
@@ -85,8 +85,6 @@ public class AuthController {
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
 
-
-    // ▼▼▼ ИЗМЕНЯЕМ ЭТОТ МЕТОД ▼▼▼
     @GetMapping("/profile")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<JwtResponse> getUserProfile(Authentication authentication, HttpServletRequest request) {
@@ -95,11 +93,11 @@ public class AuthController {
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
 
-        // 3. Извлекаем токен из заголовка запроса
+
         String token = parseJwt(request);
 
         return ResponseEntity.ok(new JwtResponse(
-                token, // 4. Возвращаем токен обратно
+                token,
                 userDetails.getId(),
                 userDetails.getUsername(),
                 userDetails.getEmail(),
@@ -107,7 +105,7 @@ public class AuthController {
         ));
     }
 
-    // 5. Вспомогательный метод для извлечения токена (взят из AuthTokenFilter)
+
     private String parseJwt(HttpServletRequest request) {
         String headerAuth = request.getHeader("Authorization");
         if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {

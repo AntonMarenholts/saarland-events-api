@@ -5,7 +5,6 @@ package de.saarland.events.dto;
 public class StatusUpdateRequest {
     private String status;
 
-    // Геттеры и сеттеры
     public String getStatus() {
         return status;
     }

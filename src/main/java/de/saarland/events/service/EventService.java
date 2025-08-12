@@ -45,15 +45,15 @@ public class EventService {
     @Transactional(readOnly = true)
     public Event getEventById(Long id) {
         return eventRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Событие с ID " + id + " не найдено"));
+                .orElseThrow(() -> new EntityNotFoundException("Event with ID " + id + " not found"));
     }
 
     @Transactional
     public Event createEvent(Event event, Long categoryId, Long cityId) {
         Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new EntityNotFoundException("Категория с ID " + categoryId + " не найдена"));
+                .orElseThrow(() -> new EntityNotFoundException("Category with ID " + categoryId + " not found"));
         City city = cityRepository.findById(cityId)
-                .orElseThrow(() -> new EntityNotFoundException("Город с ID " + cityId + " не найден"));
+                .orElseThrow(() -> new EntityNotFoundException("City with ID " + cityId + " not found"));
 
         event.setCategory(category);
         event.setCity(city);
@@ -65,7 +65,7 @@ public class EventService {
     @Transactional
     public void deleteEvent(Long id) {
         Event eventToDelete = eventRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Невозможно удалить. Событие с ID " + id + " не найдено."));
+                .orElseThrow(() -> new EntityNotFoundException("Cannot delete. Event with ID " + id + " not found."));
         List<User> usersWithFavorite = userRepository.findByFavoriteEventsContains(eventToDelete);
         for (User user : usersWithFavorite) {
             user.getFavoriteEvents().remove(eventToDelete);
@@ -76,11 +76,11 @@ public class EventService {
     @Transactional
     public Event updateEvent(Long eventId, Event updatedEventData, Long categoryId, Long cityId) {
         Event existingEvent = eventRepository.findById(eventId)
-                .orElseThrow(() -> new EntityNotFoundException("Событие с ID " + eventId + " не найдено"));
+                .orElseThrow(() -> new EntityNotFoundException("Event with ID " + eventId + " not found"));
         Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new EntityNotFoundException("Категория с ID " + categoryId + " не найдена"));
+                .orElseThrow(() -> new EntityNotFoundException("Category with ID " + categoryId + " not found"));
         City city = cityRepository.findById(cityId)
-                .orElseThrow(() -> new EntityNotFoundException("Город с ID " + cityId + " не найден"));
+                .orElseThrow(() -> new EntityNotFoundException("City with ID " + cityId + " not found"));
 
         existingEvent.setEventDate(updatedEventData.getEventDate());
         existingEvent.setCity(city);
@@ -99,7 +99,7 @@ public class EventService {
     @Transactional
     public Event updateEventStatus(Long eventId, EStatus status) {
         Event existingEvent = eventRepository.findById(eventId)
-                .orElseThrow(() -> new EntityNotFoundException("Событие с ID " + eventId + " не найдено"));
+                .orElseThrow(() -> new EntityNotFoundException("Event with ID " + eventId + " not found"));
         existingEvent.setStatus(status);
         return eventRepository.save(existingEvent);
     }

@@ -24,7 +24,7 @@ public class TranslationService {
             TextResult result = translator.translateText(text, "DE", targetLang);
             return result.getText();
         } catch (DeepLException | InterruptedException e) {
-            System.err.println("Ошибка при переводе: " + e.getMessage());
+            System.err.println("Error in translation: " + e.getMessage());
             return "Translation Error";
         }
     }

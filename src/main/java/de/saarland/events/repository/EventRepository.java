@@ -2,7 +2,7 @@ package de.saarland.events.repository;
 
 import de.saarland.events.model.Event;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor; // <-- 1. Импортируем
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 import de.saarland.events.model.EStatus;
 

@@ -10,22 +10,22 @@ import java.util.List;
 
 public class EventRequestDto {
 
-    @NotNull(message = "Дата события не может быть пустой")
-    @Future(message = "Дата события должна быть в будущем")
+    @NotNull(message = "Event date cannot be empty")
+    @Future(message = "The event date must be in the future.")
     private LocalDateTime eventDate;
 
 
-    @NotNull(message = "ID города не может быть пустым")
+    @NotNull(message = "City ID cannot be empty")
     private Long cityId;
 
 
     private String imageUrl;
 
-    @NotNull(message = "ID категории не может быть пустым")
+    @NotNull(message = "Category ID cannot be empty")
     private Long categoryId;
 
-    @NotEmpty(message = "Список переводов не может быть пустым")
-    @Size(min = 1, message = "Должен быть хотя бы один перевод (немецкий)")
+    @NotEmpty(message = "Translation list cannot be empty")
+    @Size(min = 1, message = "There must be at least one translation (German)")
     private List<TranslationDto> translations;
 
 

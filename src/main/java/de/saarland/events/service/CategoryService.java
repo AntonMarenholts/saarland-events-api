@@ -4,7 +4,7 @@ import de.saarland.events.model.Category;
 import de.saarland.events.repository.CategoryRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional; // <-- 1. ДОБАВИТЬ ЭТОТ ИМПОРТ
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +35,7 @@ public class CategoryService {
         Optional<Category> existingCategory = categoryRepository.findByName(category.getName());
         if (existingCategory.isPresent()) {
 
-            throw new IllegalArgumentException("Категория с названием '" + category.getName() + "' уже существует.");
+            throw new IllegalArgumentException("Category with name '" + category.getName() + "' already exists.");
         }
         return categoryRepository.save(category);
     }
@@ -47,7 +47,7 @@ public class CategoryService {
     @Transactional
     public Category updateCategory(Long id, Category categoryDetails) {
         Category existingCategory = categoryRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Категория с ID " + id + " не найдена"));
+                .orElseThrow(() -> new EntityNotFoundException("Category with ID " + id + " not found"));
 
         existingCategory.setName(categoryDetails.getName());
         existingCategory.setDescription(categoryDetails.getDescription());

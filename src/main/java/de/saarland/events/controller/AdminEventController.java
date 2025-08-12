@@ -49,14 +49,14 @@ public class AdminEventController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')") // <-- Убеждаемся, что эта аннотация на месте
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteEvent(@PathVariable Long id) {
         eventService.deleteEvent(id);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')") // <-- Убеждаемся, что эта аннотация на месте
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EventResponseDto> updateEvent(@PathVariable Long id, @Valid @RequestBody EventRequestDto eventRequestDto) {
         Event eventData = eventMapper.toEntity(eventRequestDto);
         Event updatedEvent = eventService.updateEvent(id, eventData, eventRequestDto.getCategoryId(), eventRequestDto.getCityId());
@@ -65,7 +65,7 @@ public class AdminEventController {
     }
 
     @PatchMapping("/{id}/status")
-    @PreAuthorize("hasRole('ADMIN')") // <-- Убеждаемся, что эта аннотация на месте
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EventResponseDto> updateEventStatus(@PathVariable Long id, @RequestBody StatusUpdateRequest request) {
         EStatus newStatus = EStatus.valueOf(request.getStatus().toUpperCase());
         Event updatedEvent = eventService.updateEventStatus(id, newStatus);

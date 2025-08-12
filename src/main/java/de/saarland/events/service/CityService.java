@@ -37,7 +37,7 @@ public class CityService {
     @Transactional
     public void deleteCity(Long id) {
         if (!cityRepository.existsById(id)) {
-            throw new EntityNotFoundException("Невозможно удалить. Город с ID " + id + " не найден.");
+            throw new EntityNotFoundException("Cannot delete. City with ID " + id + " not found.");
         }
         cityRepository.deleteById(id);
     }
@@ -45,12 +45,12 @@ public class CityService {
     @Transactional
     public City updateCity(Long id, City cityDetails) {
         City existingCity = cityRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Город с ID " + id + " не найден"));
+                .orElseThrow(() -> new EntityNotFoundException("City with ID " + id + " not found"));
 
 
         Optional<City> cityWithSameName = cityRepository.findByName(cityDetails.getName());
         if (cityWithSameName.isPresent() && !cityWithSameName.get().getId().equals(id)) {
-            throw new IllegalArgumentException("Город с названием '" + cityDetails.getName() + "' уже существует.");
+            throw new IllegalArgumentException("City with a name '" + cityDetails.getName() + "' already exists.");
         }
 
         existingCity.setName(cityDetails.getName());

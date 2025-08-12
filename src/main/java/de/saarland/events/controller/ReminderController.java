@@ -17,8 +17,6 @@ public class ReminderController {
     public ReminderController(ReminderService reminderService) {
         this.reminderService = reminderService;
     }
-
-    // DTO для запроса
     public static class ReminderRequest {
         public Long userId;
         public Long eventId;
@@ -29,6 +27,6 @@ public class ReminderController {
     @PreAuthorize("#request.userId == authentication.principal.id")
     public ResponseEntity<?> setReminder(@RequestBody ReminderRequest request) {
         reminderService.createReminder(request.userId, request.eventId, request.remindAt);
-        return ResponseEntity.ok(Map.of("message", "Напоминание успешно установлено!"));
+        return ResponseEntity.ok(Map.of("message", "Reminder successfully set!"));
     }
 }

@@ -33,16 +33,16 @@ public class FileUploadController {
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<Map<String, String>> uploadImage(@RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Файл не должен быть пустым"));
+            return ResponseEntity.badRequest().body(Map.of("error", "The file must not be empty"));
         }
 
         String bucketName = "event-images";
         String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-        // Мы формируем путь для API-запроса
+
         String uploadPath = "/storage/v1/object/" + bucketName + "/" + fileName;
 
         try {
-            // Выполняем прямой HTTP-запрос к API Supabase Storage
+
             webClient.post()
                     .uri(uploadPath)
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + serviceKey)
@@ -59,7 +59,7 @@ public class FileUploadController {
 
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.internalServerError().body(Map.of("error", "Ошибка при загрузке файла: " + e.getMessage()));
+            return ResponseEntity.internalServerError().body(Map.of("error", "Error loading file: " + e.getMessage()));
         }
     }
 }
