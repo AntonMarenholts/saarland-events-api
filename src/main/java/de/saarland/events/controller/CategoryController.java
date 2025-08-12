@@ -33,5 +33,6 @@ public class CategoryController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(categories);
 
+
     }
 }
