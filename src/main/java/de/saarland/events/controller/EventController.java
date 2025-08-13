@@ -28,9 +28,10 @@ public class EventController {
             @RequestParam Optional<Long> category,
             @RequestParam Optional<Integer> year,
             @RequestParam Optional<Integer> month,
-            @RequestParam Optional<String> categoryName
+            @RequestParam Optional<String> categoryName,
+            @RequestParam Optional<String> keyword
     ) {
-        List<EventResponseDto> events = eventService.findEvents(city, category, year, month, categoryName)
+        List<EventResponseDto> events = eventService.findEvents(city, category, year, month, categoryName, keyword)
                 .stream()
                 .map(eventMapper::toResponseDto)
                 .collect(Collectors.toList());
