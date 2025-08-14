@@ -1,4 +1,4 @@
-package de.saarland.eventsapi;
+package de.saarland.events.service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
