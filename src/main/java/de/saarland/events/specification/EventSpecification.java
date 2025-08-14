@@ -54,6 +54,11 @@ public class EventSpecification {
                 LocalDateTime startDate = LocalDateTime.of(year.get(), 1, 1, 0, 0);
                 LocalDateTime endDate = startDate.plusYears(1);
                 predicates.add(criteriaBuilder.between(root.get("eventDate"), startDate, endDate));
+            } else if (month.isPresent()) { // <-- ВОТ НОВЫЙ БЛОК
+                int currentYear = LocalDateTime.now().getYear();
+                LocalDateTime startDate = LocalDateTime.of(currentYear, month.get(), 1, 0, 0);
+                LocalDateTime endDate = startDate.plusMonths(1);
+                predicates.add(criteriaBuilder.between(root.get("eventDate"), startDate, endDate));
             }
 
 
