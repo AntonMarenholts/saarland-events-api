@@ -54,7 +54,12 @@ public class WebSecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("https://saarland-event-front-hq61.vercel.app", "http://localhost:5173"));
+        configuration.setAllowedOrigins(Arrays.asList(
+                "https://saarland-events-new.de",
+                "https://www.saarland-events-new.de",
+                "https://saarland-event-front-hq61.vercel.app",
+                "http://localhost:5173"
+        ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
