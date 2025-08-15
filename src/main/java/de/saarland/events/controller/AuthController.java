@@ -9,6 +9,7 @@ import de.saarland.events.model.User;
 import de.saarland.events.repository.UserRepository;
 import de.saarland.events.security.jwt.JwtUtils;
 import de.saarland.events.security.services.UserDetailsImpl;
+import de.saarland.events.service.EmailService; // <-- 1. ИМПОРТИРУЙТЕ EmailService
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime; // <-- 2. ИМПОРТЫ ДЛЯ ДАТЫ И UUID
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -33,12 +38,15 @@ public class AuthController {
     private final UserRepository userRepository;
     private final PasswordEncoder encoder;
     private final JwtUtils jwtUtils;
+    private final EmailService emailService;
 
-    public AuthController(AuthenticationManager authenticationManager, UserRepository userRepository, PasswordEncoder encoder, JwtUtils jwtUtils) {
+
+    public AuthController(AuthenticationManager authenticationManager, UserRepository userRepository, PasswordEncoder encoder, JwtUtils jwtUtils, EmailService emailService) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.encoder = encoder;
         this.jwtUtils = jwtUtils;
+        this.emailService = emailService;
     }
 
     @PostMapping("/signin")
@@ -113,4 +121,62 @@ public class AuthController {
         }
         return null;
     }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        Optional<User> userOptional = userRepository.findByEmail(email);
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            String token = UUID.randomUUID().toString();
+            user.setResetPasswordToken(token);
+            user.setTokenCreationDate(LocalDateTime.now());
+            userRepository.save(user);
+
+
+            String resetLink = "https://saarland-event-front-hq61.vercel.app/reset-password?token=" + token;
+
+
+             emailService.sendPasswordResetEmail(user, resetLink);
+
+//            System.out.println("Password Reset Link: " + resetLink);
+        }
+
+
+        return ResponseEntity.ok(new MessageResponse("If your email is in our system, you will receive a password reset link."));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestParam("token") String token, @RequestBody Map<String, String> request) {
+        String newPassword = request.get("password");
+        if (newPassword == null || newPassword.length() < 6) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: Password must be at least 6 characters long!"));
+        }
+
+        Optional<User> userOptional = userRepository.findByResetPasswordToken(token);
+
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: Invalid token!"));
+        }
+
+        User user = userOptional.get();
+
+
+        if (user.getTokenCreationDate() != null && user.getTokenCreationDate().plusHours(24).isBefore(LocalDateTime.now())) {
+            user.setResetPasswordToken(null);
+            user.setTokenCreationDate(null);
+            userRepository.save(user);
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: Token expired!"));
+        }
+
+        user.setPassword(encoder.encode(newPassword));
+        user.setResetPasswordToken(null); // Очищаем токен после использования
+        user.setTokenCreationDate(null);
+        userRepository.save(user);
+
+        return ResponseEntity.ok(new MessageResponse("Password has been reset successfully."));
+    }
+
+
 }

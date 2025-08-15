@@ -19,9 +19,7 @@ import java.io.IOException;
 @Service
 public class EmailService {
 
-
     private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
-
     private final SendGrid sendGrid;
 
     @Value("${app.email.from}")
@@ -32,7 +30,6 @@ public class EmailService {
     }
 
     public void sendReminderEmail(User user, Event event) {
-        Email to = new Email(user.getEmail());
         String subject = "Event Reminder: " + event.getTranslations().getFirst().getName();
         String textContent = String.format(
                 "Hello, %s!\n\nWe remind you that the event you saved will start soon: '%s'.\nIt will happen %s.\n\n" +
@@ -41,8 +38,28 @@ public class EmailService {
                 event.getTranslations().getFirst().getName(),
                 event.getEventDate().toString()
         );
+        sendEmail(user.getEmail(), subject, textContent);
+    }
+
+
+
+    public void sendPasswordResetEmail(User user, String resetLink) {
+        String subject = "Password Reset Request";
+        String textContent = String.format(
+                "Hello, %s!\n\nYou requested a password reset. Please click the link below to set a new password:\n%s\n\n" +
+                        "If you did not request this, please ignore this email.\n\n" +
+                        "Best wishes, the Afisha Saarland team!",
+                user.getUsername(),
+                resetLink
+        );
+        sendEmail(user.getEmail(), subject, textContent);
+    }
+
+    private void sendEmail(String toEmail, String subject, String textContent) {
+        Email from = new Email(fromEmail);
+        Email to = new Email(toEmail);
         Content content = new Content("text/plain", textContent);
-        Mail mail = new Mail(new Email(fromEmail), subject, to, content);
+        Mail mail = new Mail(from, subject, to, content);
         Request request = new Request();
         try {
             request.setMethod(Method.POST);
@@ -50,14 +67,11 @@ public class EmailService {
             request.setBody(mail.build());
 
             Response response = sendGrid.api(request);
-
-
-            logger.info("Email reminder sent to {}. Status code: {}", user.getEmail(), response.getStatusCode());
-
+            logger.info("Email sent to {}. Subject: '{}'. Status code: {}", toEmail, subject, response.getStatusCode());
         } catch (IOException ex) {
-
-            logger.error("Error sending email to {}: {}", user.getEmail(), ex.getMessage());
+            logger.error("Error sending email to {}: {}", toEmail, ex.getMessage());
             throw new RuntimeException("Failed to send email", ex);
         }
     }
+
 }

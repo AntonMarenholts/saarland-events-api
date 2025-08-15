@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.util.HashSet;
 import java.util.Set;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
@@ -35,6 +36,9 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
     private ERole role;
+    private String resetPasswordToken;
+
+    private LocalDateTime tokenCreationDate;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_favorites",
@@ -50,7 +54,18 @@ public class User {
         this.password = password;
         this.role = role;
     }
-
+    public void setResetPasswordToken(String resetPasswordToken) {
+        this.resetPasswordToken = resetPasswordToken;
+    }
+    public LocalDateTime getTokenCreationDate() {
+        return tokenCreationDate;
+    }
+    public void setTokenCreationDate(LocalDateTime tokenCreationDate) {
+        this.tokenCreationDate = tokenCreationDate;
+    }
+    public void setFavoriteEvents(Set<Event> favoriteEvents) {
+        this.favoriteEvents = favoriteEvents;
+    }
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -65,8 +80,9 @@ public class User {
     public Set<Event> getFavoriteEvents() {
         return favoriteEvents;
     }
-
-    public void setFavoriteEvents(Set<Event> favoriteEvents) {
-        this.favoriteEvents = favoriteEvents;
+    public String getResetPasswordToken() {
+        return resetPasswordToken;
     }
+
+
 }
