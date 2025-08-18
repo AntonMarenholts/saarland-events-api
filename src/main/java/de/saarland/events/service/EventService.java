@@ -11,9 +11,12 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import java.util.Arrays;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class EventService {
@@ -42,6 +45,14 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
+    public List<Event> findAllAdminEventsByCity(String cityName) {
+        return eventRepository.findByCityNameAndStatusIn(
+                cityName,
+                Arrays.asList(EStatus.APPROVED, EStatus.REJECTED)
+        );
+    }
+
+    @Transactional(readOnly = true)
     public Event getEventById(Long id) {
         return eventRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Event with ID " + id + " not found"));
@@ -54,10 +65,30 @@ public class EventService {
         City city = cityRepository.findById(cityId)
                 .orElseThrow(() -> new EntityNotFoundException("City with ID " + cityId + " not found"));
 
+
+        String germanName = event.getTranslations().stream()
+                .filter(t -> "de".equals(t.getLocale()))
+                .findFirst()
+                .map(Translation::getName)
+                .orElse(null);
+
+        if (germanName != null && !germanName.trim().isEmpty()) {
+            LocalDate eventDate = event.getEventDate().toLocalDate();
+            if (eventRepository.existsDuplicate(germanName, cityId, eventDate)) {
+
+                throw new IllegalArgumentException(
+                        "Ein Ereignis mit demselben Namen, in derselben Stadt und am selben Datum ist bereits vorhanden."
+                );
+            }
+        }
         event.setCategory(category);
         event.setCity(city);
         event.getTranslations().forEach(translation -> translation.setEvent(event));
-        event.setStatus(EStatus.PENDING);
+
+        if (event.getStatus() == null) {
+            event.setStatus(EStatus.PENDING);
+        }
+
         return eventRepository.save(event);
     }
 
@@ -105,7 +136,23 @@ public class EventService {
 
     @Transactional(readOnly = true)
     public List<Event> findAllEventsForAdmin() {
-        return eventRepository.findAll();
+        return eventRepository.findByStatusOrderByEventDateAsc(EStatus.PENDING);
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, List<Event>> getGroupedEventsByCity() {
+        return eventRepository.findAll().stream()
+                .filter(event -> event.getStatus() == EStatus.APPROVED || event.getStatus() == EStatus.REJECTED)
+                .sorted((e1, e2) -> {
+                    String name1 = e1.getTranslations().stream()
+                            .filter(t -> "de".equals(t.getLocale()))
+                            .findFirst().map(Translation::getName).orElse("");
+                    String name2 = e2.getTranslations().stream()
+                            .filter(t -> "de".equals(t.getLocale()))
+                            .findFirst().map(Translation::getName).orElse("");
+                    return name1.compareToIgnoreCase(name2);
+                })
+                .collect(Collectors.groupingBy(event -> event.getCity().getName()));
     }
 
     @Transactional(readOnly = true)
