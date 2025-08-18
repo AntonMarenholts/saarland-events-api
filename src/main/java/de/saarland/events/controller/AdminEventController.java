@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import de.saarland.events.dto.AdminStatsDto;
-
+import java.util.Map;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +29,16 @@ public class AdminEventController {
         this.eventMapper = eventMapper;
     }
 
+    @GetMapping("/by-city/{cityName}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<EventResponseDto>> getAdminEventsByCity(@PathVariable String cityName) {
+        List<EventResponseDto> events = eventService.findAllAdminEventsByCity(cityName)
+                .stream()
+                .map(eventMapper::toResponseDto)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(events);
+    }
+
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<EventResponseDto>> getAllEventsForAdmin() {
@@ -39,8 +49,24 @@ public class AdminEventController {
         return ResponseEntity.ok(eventDtos);
     }
 
+    @GetMapping("/by-city")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Map<String, List<EventResponseDto>>> getEventsGroupedByCity() {
+        Map<String, List<Event>> groupedEvents = eventService.getGroupedEventsByCity();
+
+        Map<String, List<EventResponseDto>> response = groupedEvents.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> entry.getValue().stream()
+                                .map(eventMapper::toResponseDto)
+                                .collect(Collectors.toList())
+                ));
+
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')") // <-- Убеждаемся, что эта аннотация на месте
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EventResponseDto> createEvent(@Valid @RequestBody EventRequestDto eventRequestDto) {
         Event eventToCreate = eventMapper.toEntity(eventRequestDto);
         Event createdEvent = eventService.createEvent(eventToCreate, eventRequestDto.getCategoryId(), eventRequestDto.getCityId());
