@@ -9,18 +9,18 @@ import de.saarland.events.model.EStatus;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
-import java.time.ZonedDateTime; // ИЗМЕНЕНО
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Repository
 public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecificationExecutor<Event> {
 
-    List<Event> findAllByEventDateGreaterThanEqualOrderByEventDateAsc(ZonedDateTime date); // ИЗМЕНЕНО
+    List<Event> findAllByEventDateGreaterThanEqualOrderByEventDateAsc(ZonedDateTime date);
     long countByStatus(EStatus status);
     List<Event> findByStatusOrderByEventDateAsc(EStatus status);
 
-    // V-- ДОБАВЛЕНА СОРТИРОВКА OrderByEventDateDesc --V
-    List<Event> findByCityNameAndStatusInOrderByEventDateDesc(String cityName, List<EStatus> statuses);
+    // V-- УБИРАЕМ СОРТИРОВКУ ИЗ НАЗВАНИЯ МЕТОДА --V
+    List<Event> findByCityNameAndStatusIn(String cityName, List<EStatus> statuses);
 
     @Query("SELECT COUNT(e) > 0 FROM Event e JOIN e.translations t " +
             "WHERE t.locale = 'de' " +
