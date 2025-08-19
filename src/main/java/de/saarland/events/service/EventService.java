@@ -143,15 +143,7 @@ public class EventService {
     public Map<String, List<Event>> getGroupedEventsByCity() {
         return eventRepository.findAll().stream()
                 .filter(event -> event.getStatus() == EStatus.APPROVED || event.getStatus() == EStatus.REJECTED)
-                .sorted((e1, e2) -> {
-                    String name1 = e1.getTranslations().stream()
-                            .filter(t -> "de".equals(t.getLocale()))
-                            .findFirst().map(Translation::getName).orElse("");
-                    String name2 = e2.getTranslations().stream()
-                            .filter(t -> "de".equals(t.getLocale()))
-                            .findFirst().map(Translation::getName).orElse("");
-                    return name1.compareToIgnoreCase(name2);
-                })
+                .sorted((e1, e2) -> e1.getEventDate().compareTo(e2.getEventDate()))
                 .collect(Collectors.groupingBy(event -> event.getCity().getName()));
     }
 

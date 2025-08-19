@@ -19,6 +19,7 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
     long countByStatus(EStatus status);
     List<Event> findByStatusOrderByEventDateAsc(EStatus status);
     List<Event> findByCityNameAndStatusIn(String cityName, List<EStatus> statuses);
+    List<Event> findAllByCityNameOrderByDateAsc(String cityName);
 
     @Query("SELECT COUNT(e) > 0 FROM Event e JOIN e.translations t " +
             "WHERE t.locale = 'de' " +
