@@ -1,3 +1,4 @@
+// src/main/java/de/saarland/events/service/ReviewService.java
 package de.saarland.events.service;
 
 import de.saarland.events.dto.ReviewRequestDto;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime; // ИМПОРТ
 import java.util.List;
 
 @Service
@@ -41,7 +43,8 @@ public class ReviewService {
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
 
 
-        if (event.getEventDate().isAfter(LocalDateTime.now())) {
+        // V-- ЭТА СТРОКА ИСПРАВЛЕНА --V
+        if (event.getEventDate().isAfter(ZonedDateTime.now())) {
             throw new IllegalArgumentException("You can only review past events.");
         }
 

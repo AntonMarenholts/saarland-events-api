@@ -1,3 +1,4 @@
+// src/main/java/de/saarland/events/service/ReminderService.java
 package de.saarland.events.service;
 
 import de.saarland.events.model.Event;
@@ -10,7 +11,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime; // ИЗМЕНЕНО
 
 @Service
 public class ReminderService {
@@ -26,7 +27,7 @@ public class ReminderService {
     }
 
     @Transactional
-    public void createReminder(Long userId, Long eventId, LocalDateTime remindAt) {
+    public void createReminder(Long userId, Long eventId, ZonedDateTime remindAt) { // ИЗМЕНЕНО
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
         Event event = eventRepository.findById(eventId)

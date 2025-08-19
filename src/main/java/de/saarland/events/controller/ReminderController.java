@@ -1,3 +1,4 @@
+// src/main/java/de/saarland/events/controller/ReminderController.java
 package de.saarland.events.controller;
 
 import de.saarland.events.service.ReminderService;
@@ -5,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime; // ИЗМЕНЕНО
 import java.util.Map;
 
 @RestController
@@ -20,7 +21,7 @@ public class ReminderController {
     public static class ReminderRequest {
         public Long userId;
         public Long eventId;
-        public LocalDateTime remindAt;
+        public ZonedDateTime remindAt; // ИЗМЕНЕНО
     }
 
     @PostMapping
