@@ -1,11 +1,11 @@
-
+// src/main/java/de/saarland/events/model/Event.java
 package de.saarland.events.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime; // ИЗМЕНЕНО
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +19,7 @@ public class Event {
     private Long id;
 
     @Column(nullable = false)
-    private LocalDateTime eventDate;
+    private ZonedDateTime eventDate; // ИЗМЕНЕНО
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "city_id", nullable = false)
@@ -45,62 +45,21 @@ public class Event {
 
     public Event() {}
 
-
-    public List<Reminder> getReminders() {
-        return reminders;
-    }
-
-    public void setReminders(List<Reminder> reminders) {
-        this.reminders = reminders;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public LocalDateTime getEventDate() {
-        return eventDate;
-    }
-
-    public void setEventDate(LocalDateTime eventDate) {
-        this.eventDate = eventDate;
-    }
-
+    // Геттеры и сеттеры
+    public List<Reminder> getReminders() { return reminders; }
+    public void setReminders(List<Reminder> reminders) { this.reminders = reminders; }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public ZonedDateTime getEventDate() { return eventDate; } // ИЗМЕНЕНО
+    public void setEventDate(ZonedDateTime eventDate) { this.eventDate = eventDate; } // ИЗМЕНЕНО
     public City getCity() { return city; }
     public void setCity(City city) { this.city = city; }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
-    public List<Translation> getTranslations() {
-        return translations;
-    }
-
-    public void setTranslations(List<Translation> translations) {
-        this.translations = translations;
-    }
-
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-    public EStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(EStatus status) {
-        this.status = status;
-    }
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+    public List<Translation> getTranslations() { return translations; }
+    public void setTranslations(List<Translation> translations) { this.translations = translations; }
+    public Category getCategory() { return category; }
+    public void setCategory(Category category) { this.category = category; }
+    public EStatus getStatus() { return status; }
+    public void setStatus(EStatus status) { this.status = status; }
 }

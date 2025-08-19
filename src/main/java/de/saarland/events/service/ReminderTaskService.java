@@ -1,3 +1,4 @@
+// src/main/java/de/saarland/events/service/ReminderTaskService.java
 package de.saarland.events.service;
 
 import de.saarland.events.model.Reminder;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime; // ИЗМЕНЕНО
 import java.util.List;
 
 @Service
@@ -20,14 +22,13 @@ public class ReminderTaskService {
         this.emailService = emailService;
     }
 
-
     @Scheduled(cron = "0 * * * * ?")
     @Transactional
     public void processReminders() {
         System.out.println("Checking reminders... " + LocalDateTime.now());
 
-
-        List<Reminder> dueReminders = reminderRepository.findAllByRemindAtBeforeAndIsSentFalse(LocalDateTime.now());
+        // V-- ЭТА СТРОКА ИСПРАВЛЕНА --V
+        List<Reminder> dueReminders = reminderRepository.findAllByRemindAtBeforeAndIsSentFalse(ZonedDateTime.now());
 
         if (dueReminders.isEmpty()) {
             return;
@@ -35,10 +36,8 @@ public class ReminderTaskService {
 
         System.out.printf("Found %d reminders to send.\n", dueReminders.size());
 
-
         for (Reminder reminder : dueReminders) {
             emailService.sendReminderEmail(reminder.getUser(), reminder.getEvent());
-
             reminder.setSent(true);
             reminderRepository.save(reminder);
         }

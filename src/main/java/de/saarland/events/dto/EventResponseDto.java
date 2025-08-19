@@ -1,25 +1,24 @@
+// src/main/java/de/saarland/events/dto/EventResponseDto.java
 package de.saarland.events.dto;
 
 import de.saarland.events.model.EStatus;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime; // ИЗМЕНЕНО
 import java.util.List;
 
 public class EventResponseDto {
     private Long id;
-    private LocalDateTime eventDate;
-
+    private ZonedDateTime eventDate; // ИЗМЕНЕНО
     private CityDto city;
-
     private String imageUrl;
     private CategoryDto category;
     private List<TranslationDto> translations;
     private EStatus status;
 
-
+    // Геттеры и сеттеры
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
-    public LocalDateTime getEventDate() { return eventDate; }
-    public void setEventDate(LocalDateTime eventDate) { this.eventDate = eventDate; }
+    public ZonedDateTime getEventDate() { return eventDate; } // ИЗМЕНЕНО
+    public void setEventDate(ZonedDateTime eventDate) { this.eventDate = eventDate; } // ИЗМЕНЕНО
     public CityDto getCity() { return city; }
     public void setCity(CityDto city) { this.city = city; }
     public String getImageUrl() { return imageUrl; }

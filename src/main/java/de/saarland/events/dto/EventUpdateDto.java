@@ -1,7 +1,6 @@
-// src/main/java/de/saarland/events/dto/EventRequestDto.java
+// src/main/java/de/saarland/events/dto/EventUpdateDto.java
 package de.saarland.events.dto;
 
-import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -9,10 +8,9 @@ import jakarta.validation.constraints.Size;
 import java.time.ZonedDateTime; // ИЗМЕНЕНО
 import java.util.List;
 
-public class EventRequestDto {
+public class EventUpdateDto {
 
     @NotNull(message = "Event date cannot be empty")
-    @Future(message = "The event date must be in the future.")
     private ZonedDateTime eventDate; // ИЗМЕНЕНО
 
     @NotNull(message = "City ID cannot be empty")

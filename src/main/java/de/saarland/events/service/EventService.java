@@ -39,14 +39,14 @@ public class EventService {
 
 
     @Transactional(readOnly = true)
-    public List<Event> findEvents(Optional<String> city, Optional<Long> categoryId, Optional<Integer> year, Optional<Integer> month, Optional<String> categoryName, Optional<String> keyword) { // <-- ДОБАВЬТЕ keyword
+    public List<Event> findEvents(Optional<String> city, Optional<Long> categoryId, Optional<Integer> year, Optional<Integer> month, Optional<String> categoryName, Optional<String> keyword) {
         Specification<Event> spec = eventSpecification.findByCriteria(city, categoryId, year, month, categoryName, keyword);
         return eventRepository.findAll(spec);
     }
 
     @Transactional(readOnly = true)
     public List<Event> findAllAdminEventsByCity(String cityName) {
-        return eventRepository.findByCityNameAndStatusIn(
+        return eventRepository.findByCityNameAndStatusInOrderByEventDateDesc(
                 cityName,
                 Arrays.asList(EStatus.APPROVED, EStatus.REJECTED)
         );

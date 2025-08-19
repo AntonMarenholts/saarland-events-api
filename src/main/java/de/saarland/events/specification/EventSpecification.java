@@ -1,5 +1,4 @@
-
-
+// src/main/java/de/saarland/events/specification/EventSpecification.java
 package de.saarland.events.specification;
 
 import de.saarland.events.model.EStatus;
@@ -11,6 +10,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId; // ИМПОРТ
+import java.time.ZonedDateTime; // ИМПОРТ
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,38 +30,35 @@ public class EventSpecification {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(criteriaBuilder.equal(root.get("status"), EStatus.APPROVED));
-            predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("eventDate"), LocalDateTime.now().toLocalDate().atStartOfDay()));
+            predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("eventDate"), ZonedDateTime.now())); // ИЗМЕНЕНО
 
             cityName.ifPresent(c -> predicates.add(criteriaBuilder.equal(root.get("city").get("name"), c)));
             categoryId.ifPresent(id -> predicates.add(criteriaBuilder.equal(root.get("category").get("id"), id)));
             categoryName.ifPresent(name -> predicates.add(criteriaBuilder.equal(root.get("category").get("name"), name)));
 
-
             keyword.ifPresent(kw -> {
-
                 Join<Event, Translation> translationJoin = root.join("translations");
-
                 Predicate namePredicate = criteriaBuilder.like(criteriaBuilder.lower(translationJoin.get("name")), "%" + kw.toLowerCase() + "%");
                 Predicate descPredicate = criteriaBuilder.like(criteriaBuilder.lower(translationJoin.get("description")), "%" + kw.toLowerCase() + "%");
                 predicates.add(criteriaBuilder.or(namePredicate, descPredicate));
             });
 
-
+            // V-- ЭТОТ БЛОК ИЗМЕНЕН ДЛЯ ZonedDateTime --V
             if (year.isPresent() && month.isPresent()) {
-                LocalDateTime startDate = LocalDateTime.of(year.get(), month.get(), 1, 0, 0);
-                LocalDateTime endDate = startDate.plusMonths(1);
+                ZonedDateTime startDate = ZonedDateTime.of(year.get(), month.get(), 1, 0, 0, 0, 0, ZoneId.systemDefault());
+                ZonedDateTime endDate = startDate.plusMonths(1);
                 predicates.add(criteriaBuilder.between(root.get("eventDate"), startDate, endDate));
             } else if (year.isPresent()) {
-                LocalDateTime startDate = LocalDateTime.of(year.get(), 1, 1, 0, 0);
-                LocalDateTime endDate = startDate.plusYears(1);
+                ZonedDateTime startDate = ZonedDateTime.of(year.get(), 1, 1, 0, 0, 0, 0, ZoneId.systemDefault());
+                ZonedDateTime endDate = startDate.plusYears(1);
                 predicates.add(criteriaBuilder.between(root.get("eventDate"), startDate, endDate));
-            } else if (month.isPresent()) { // <-- ВОТ НОВЫЙ БЛОК
+            } else if (month.isPresent()) {
                 int currentYear = LocalDateTime.now().getYear();
-                LocalDateTime startDate = LocalDateTime.of(currentYear, month.get(), 1, 0, 0);
-                LocalDateTime endDate = startDate.plusMonths(1);
+                ZonedDateTime startDate = ZonedDateTime.of(currentYear, month.get(), 1, 0, 0, 0, 0, ZoneId.systemDefault());
+                ZonedDateTime endDate = startDate.plusMonths(1);
                 predicates.add(criteriaBuilder.between(root.get("eventDate"), startDate, endDate));
             }
-
+            // ^-- КОНЕЦ ИЗМЕНЕНИЙ --^
 
             query.distinct(true);
             query.orderBy(criteriaBuilder.asc(root.get("eventDate")));

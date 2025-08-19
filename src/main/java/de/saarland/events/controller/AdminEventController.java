@@ -1,7 +1,9 @@
+// src/main/java/de/saarland/events/controller/AdminEventController.java
 package de.saarland.events.controller;
 
 import de.saarland.events.dto.EventRequestDto;
 import de.saarland.events.dto.EventResponseDto;
+import de.saarland.events.dto.EventUpdateDto; // <-- 1. ИМПОРТИРУЙТЕ НОВЫЙ DTO
 import de.saarland.events.dto.StatusUpdateRequest;
 import de.saarland.events.mapper.EventMapper;
 import de.saarland.events.model.EStatus;
@@ -29,6 +31,7 @@ public class AdminEventController {
         this.eventMapper = eventMapper;
     }
 
+    // ... (остальные методы без изменений) ...
     @GetMapping("/by-city/{cityName}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<EventResponseDto>> getAdminEventsByCity(@PathVariable String cityName) {
@@ -81,14 +84,17 @@ public class AdminEventController {
         return ResponseEntity.noContent().build();
     }
 
+
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<EventResponseDto> updateEvent(@PathVariable Long id, @Valid @RequestBody EventRequestDto eventRequestDto) {
-        Event eventData = eventMapper.toEntity(eventRequestDto);
-        Event updatedEvent = eventService.updateEvent(id, eventData, eventRequestDto.getCategoryId(), eventRequestDto.getCityId());
+    // V-- 2. ЗАМЕНИТЕ EventRequestDto НА EventUpdateDto ЗДЕСЬ --V
+    public ResponseEntity<EventResponseDto> updateEvent(@PathVariable Long id, @Valid @RequestBody EventUpdateDto eventUpdateDto) {
+        Event eventData = eventMapper.toEntity(eventUpdateDto); // Используем новый метод маппера
+        Event updatedEvent = eventService.updateEvent(id, eventData, eventUpdateDto.getCategoryId(), eventUpdateDto.getCityId());
         EventResponseDto responseDto = eventMapper.toResponseDto(updatedEvent);
         return ResponseEntity.ok(responseDto);
     }
+    // ^-- КОНЕЦ ИЗМЕНЕНИЙ --^
 
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMIN')")
@@ -97,6 +103,7 @@ public class AdminEventController {
         Event updatedEvent = eventService.updateEventStatus(id, newStatus);
         return ResponseEntity.ok(eventMapper.toResponseDto(updatedEvent));
     }
+
     @GetMapping("/stats")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AdminStatsDto> getStatistics() {
