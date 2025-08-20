@@ -2,13 +2,14 @@ package de.saarland.events.controller;
 
 import de.saarland.events.dto.EventResponseDto;
 import de.saarland.events.mapper.EventMapper;
+import de.saarland.events.model.Event;
 import de.saarland.events.service.EventService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/events")
@@ -23,19 +24,18 @@ public class EventController {
     }
 
     @GetMapping
-    public ResponseEntity<List<EventResponseDto>> getAllEvents(
+    public ResponseEntity<Page<EventResponseDto>> getAllEvents(
             @RequestParam Optional<String> city,
             @RequestParam Optional<Long> category,
             @RequestParam Optional<Integer> year,
             @RequestParam Optional<Integer> month,
             @RequestParam Optional<String> categoryName,
-            @RequestParam Optional<String> keyword
+            @RequestParam Optional<String> keyword,
+            Pageable pageable
     ) {
-        List<EventResponseDto> events = eventService.findEvents(city, category, year, month, categoryName, keyword)
-                .stream()
-                .map(eventMapper::toResponseDto)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(events);
+        Page<Event> eventsPage = eventService.findEvents(city, category, year, month, categoryName, keyword, pageable);
+        Page<EventResponseDto> dtoPage = eventsPage.map(eventMapper::toResponseDto);
+        return ResponseEntity.ok(dtoPage);
     }
 
     @GetMapping("/{id}")
