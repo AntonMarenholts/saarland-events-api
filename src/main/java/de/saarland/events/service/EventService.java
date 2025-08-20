@@ -1,4 +1,4 @@
-// src/main/java/de/saarland/events/service/EventService.java
+
 package de.saarland.events.service;
 
 import de.saarland.events.dto.AdminStatsDto;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Arrays;
 import java.time.LocalDate;
-import java.util.Comparator; // ИМПОРТ
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class EventService {
-    // ... (поля и конструктор без изменений) ...
+
     private final EventRepository eventRepository;
     private final CategoryRepository categoryRepository;
     private final CityRepository cityRepository;
@@ -38,24 +38,22 @@ public class EventService {
         this.userRepository = userRepository;
     }
 
-    // ... (остальные методы) ...
+
 
     @Transactional(readOnly = true)
     public List<Event> findAllAdminEventsByCity(String cityName) {
-        // V-- ЭТОТ МЕТОД ПОЛНОСТЬЮ ИЗМЕНЕН --V
-        // 1. Получаем неотсортированный список из репозитория
+
         List<Event> events = eventRepository.findByCityNameAndStatusIn(
                 cityName,
                 Arrays.asList(EStatus.APPROVED, EStatus.REJECTED)
         );
-        // 2. Сортируем его вручную в коде (от новых к старым)
-        events.sort(Comparator.comparing(Event::getEventDate).reversed());
-        // 3. Возвращаем отсортированный список
+
+        events.sort(Comparator.comparing(Event::getEventDate));
+
         return events;
-        // ^-- КОНЕЦ ИЗМЕНЕНИЙ --^
     }
 
-    // ... (остальные методы без изменений) ...
+
     @Transactional(readOnly = true)
     public List<Event> findEvents(Optional<String> city, Optional<Long> categoryId, Optional<Integer> year, Optional<Integer> month, Optional<String> categoryName, Optional<String> keyword) {
         Specification<Event> spec = eventSpecification.findByCriteria(city, categoryId, year, month, categoryName, keyword);
