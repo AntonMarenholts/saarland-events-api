@@ -3,13 +3,15 @@ package de.saarland.events.controller;
 
 import de.saarland.events.dto.EventRequestDto;
 import de.saarland.events.dto.EventResponseDto;
-import de.saarland.events.dto.EventUpdateDto; // <-- 1. ИМПОРТИРУЙТЕ НОВЫЙ DTO
+import de.saarland.events.dto.EventUpdateDto;
 import de.saarland.events.dto.StatusUpdateRequest;
 import de.saarland.events.mapper.EventMapper;
 import de.saarland.events.model.EStatus;
 import de.saarland.events.model.Event;
 import de.saarland.events.service.EventService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,15 +33,12 @@ public class AdminEventController {
         this.eventMapper = eventMapper;
     }
 
-    // ... (остальные методы без изменений) ...
     @GetMapping("/by-city/{cityName}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<EventResponseDto>> getAdminEventsByCity(@PathVariable String cityName) {
-        List<EventResponseDto> events = eventService.findAllAdminEventsByCity(cityName)
-                .stream()
-                .map(eventMapper::toResponseDto)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(events);
+    public ResponseEntity<Page<EventResponseDto>> getAdminEventsByCity(@PathVariable String cityName, Pageable pageable) {
+        Page<Event> eventsPage = eventService.findAllAdminEventsByCity(cityName, pageable);
+        Page<EventResponseDto> dtoPage = eventsPage.map(eventMapper::toResponseDto);
+        return ResponseEntity.ok(dtoPage);
     }
 
     @GetMapping
@@ -87,14 +86,12 @@ public class AdminEventController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    // V-- 2. ЗАМЕНИТЕ EventRequestDto НА EventUpdateDto ЗДЕСЬ --V
     public ResponseEntity<EventResponseDto> updateEvent(@PathVariable Long id, @Valid @RequestBody EventUpdateDto eventUpdateDto) {
-        Event eventData = eventMapper.toEntity(eventUpdateDto); // Используем новый метод маппера
+        Event eventData = eventMapper.toEntity(eventUpdateDto);
         Event updatedEvent = eventService.updateEvent(id, eventData, eventUpdateDto.getCategoryId(), eventUpdateDto.getCityId());
         EventResponseDto responseDto = eventMapper.toResponseDto(updatedEvent);
         return ResponseEntity.ok(responseDto);
     }
-    // ^-- КОНЕЦ ИЗМЕНЕНИЙ --^
 
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMIN')")

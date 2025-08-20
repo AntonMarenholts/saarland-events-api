@@ -1,4 +1,4 @@
-
+// src/main/java/de/saarland/events/service/EventService.java
 package de.saarland.events.service;
 
 import de.saarland.events.dto.AdminStatsDto;
@@ -9,6 +9,8 @@ import de.saarland.events.repository.EventRepository;
 import de.saarland.events.repository.UserRepository;
 import de.saarland.events.specification.EventSpecification;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +24,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class EventService {
-
     private final EventRepository eventRepository;
     private final CategoryRepository categoryRepository;
     private final CityRepository cityRepository;
@@ -38,26 +39,19 @@ public class EventService {
         this.userRepository = userRepository;
     }
 
-
-
     @Transactional(readOnly = true)
-    public List<Event> findAllAdminEventsByCity(String cityName) {
-
-        List<Event> events = eventRepository.findByCityNameAndStatusIn(
+    public Page<Event> findAllAdminEventsByCity(String cityName, Pageable pageable) {
+        return eventRepository.findByCityNameAndStatusIn(
                 cityName,
-                Arrays.asList(EStatus.APPROVED, EStatus.REJECTED)
+                Arrays.asList(EStatus.APPROVED, EStatus.REJECTED),
+                pageable
         );
-
-        events.sort(Comparator.comparing(Event::getEventDate));
-
-        return events;
     }
 
-
     @Transactional(readOnly = true)
-    public List<Event> findEvents(Optional<String> city, Optional<Long> categoryId, Optional<Integer> year, Optional<Integer> month, Optional<String> categoryName, Optional<String> keyword) {
+    public Page<Event> findEvents(Optional<String> city, Optional<Long> categoryId, Optional<Integer> year, Optional<Integer> month, Optional<String> categoryName, Optional<String> keyword, Pageable pageable) {
         Specification<Event> spec = eventSpecification.findByCriteria(city, categoryId, year, month, categoryName, keyword);
-        return eventRepository.findAll(spec);
+        return eventRepository.findAll(spec, pageable);
     }
 
     @Transactional(readOnly = true)
