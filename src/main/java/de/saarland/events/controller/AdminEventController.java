@@ -1,9 +1,6 @@
 package de.saarland.events.controller;
 
-import de.saarland.events.dto.EventRequestDto;
-import de.saarland.events.dto.EventResponseDto;
-import de.saarland.events.dto.EventUpdateDto;
-import de.saarland.events.dto.StatusUpdateRequest;
+import de.saarland.events.dto.*;
 import de.saarland.events.mapper.EventMapper;
 import de.saarland.events.model.EStatus;
 import de.saarland.events.model.Event;
@@ -15,11 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import de.saarland.events.dto.AdminStatsDto;
-import java.util.Map;
+
 import java.util.List;
-import java.util.stream.Collectors;
-import de.saarland.events.dto.CityEventCountDto;
 
 @RestController
 @RequestMapping("/api/admin/events")

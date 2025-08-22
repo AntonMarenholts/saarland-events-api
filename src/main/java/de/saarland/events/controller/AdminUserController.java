@@ -2,13 +2,15 @@ package de.saarland.events.controller;
 
 import de.saarland.events.dto.UserDto;
 import de.saarland.events.mapper.UserMapper;
+import de.saarland.events.model.User; // ИМПОРТ
 import de.saarland.events.service.UserService;
+import org.springframework.data.domain.Page; // ИМПОРТ
+import org.springframework.data.domain.Pageable; // ИМПОРТ
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.stream.Collectors;
+
 
 @RestController
 @RequestMapping("/api/admin/users")
@@ -23,13 +25,14 @@ public class AdminUserController {
         this.userMapper = userMapper;
     }
 
+
     @GetMapping
-    public ResponseEntity<List<UserDto>> getAllUsers() {
-        List<UserDto> users = userService.findAllUsers().stream()
-                .map(userMapper::toDto)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(users);
+    public ResponseEntity<Page<UserDto>> getAllUsers(Pageable pageable) {
+        Page<User> userPage = userService.findAllUsers(pageable);
+        Page<UserDto> dtoPage = userPage.map(userMapper::toDto);
+        return ResponseEntity.ok(dtoPage);
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
