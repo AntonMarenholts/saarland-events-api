@@ -1,4 +1,3 @@
-// src/main/java/de/saarland/events/controller/AdminEventController.java
 package de.saarland.events.controller;
 
 import de.saarland.events.dto.EventRequestDto;
@@ -20,6 +19,7 @@ import de.saarland.events.dto.AdminStatsDto;
 import java.util.Map;
 import java.util.List;
 import java.util.stream.Collectors;
+import de.saarland.events.dto.CityEventCountDto;
 
 @RestController
 @RequestMapping("/api/admin/events")
@@ -43,28 +43,15 @@ public class AdminEventController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<EventResponseDto>> getAllEventsForAdmin() {
-        List<Event> events = eventService.findAllEventsForAdmin();
-        List<EventResponseDto> eventDtos = events.stream()
-                .map(eventMapper::toResponseDto)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(eventDtos);
+    public ResponseEntity<Page<EventResponseDto>> getAllEventsForAdmin(Pageable pageable) {
+        Page<Event> eventsPage = eventService.findAllEventsForAdmin(pageable);
+        return ResponseEntity.ok(eventsPage.map(eventMapper::toResponseDto));
     }
 
-    @GetMapping("/by-city")
+    @GetMapping("/by-city-count")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Map<String, List<EventResponseDto>>> getEventsGroupedByCity() {
-        Map<String, List<Event>> groupedEvents = eventService.getGroupedEventsByCity();
-
-        Map<String, List<EventResponseDto>> response = groupedEvents.entrySet().stream()
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        entry -> entry.getValue().stream()
-                                .map(eventMapper::toResponseDto)
-                                .collect(Collectors.toList())
-                ));
-
-        return ResponseEntity.ok(response);
+    public ResponseEntity<List<CityEventCountDto>> getCityEventCounts() {
+        return ResponseEntity.ok(eventService.getCityEventCounts());
     }
 
     @PostMapping

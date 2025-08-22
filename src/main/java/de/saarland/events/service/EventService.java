@@ -1,4 +1,3 @@
-// src/main/java/de/saarland/events/service/EventService.java
 package de.saarland.events.service;
 
 import de.saarland.events.dto.AdminStatsDto;
@@ -21,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import de.saarland.events.dto.CityEventCountDto;
 
 @Service
 public class EventService {
@@ -137,16 +137,13 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
-    public List<Event> findAllEventsForAdmin() {
-        return eventRepository.findByStatusOrderByEventDateAsc(EStatus.PENDING);
+    public Page<Event> findAllEventsForAdmin(Pageable pageable) {
+        return eventRepository.findByStatusOrderByEventDateAsc(EStatus.PENDING, pageable);
     }
 
     @Transactional(readOnly = true)
-    public Map<String, List<Event>> getGroupedEventsByCity() {
-        return eventRepository.findAll().stream()
-                .filter(event -> event.getStatus() == EStatus.APPROVED || event.getStatus() == EStatus.REJECTED)
-                .sorted((e1, e2) -> e2.getEventDate().compareTo(e1.getEventDate()))
-                .collect(Collectors.groupingBy(event -> event.getCity().getName()));
+    public List<CityEventCountDto> getCityEventCounts() {
+        return eventRepository.countEventsByCity();
     }
 
     @Transactional(readOnly = true)

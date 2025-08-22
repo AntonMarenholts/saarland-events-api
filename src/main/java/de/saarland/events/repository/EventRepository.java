@@ -1,4 +1,3 @@
-// src/main/java/de/saarland/events/repository/EventRepository.java
 package de.saarland.events.repository;
 
 import de.saarland.events.model.Event;
@@ -12,15 +11,17 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
 import java.util.List;
+import de.saarland.events.dto.CityEventCountDto;
 
 @Repository
 public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecificationExecutor<Event> {
 
     List<Event> findAllByEventDateGreaterThanEqualOrderByEventDateAsc(ZonedDateTime date);
     long countByStatus(EStatus status);
-    List<Event> findByStatusOrderByEventDateAsc(EStatus status);
+
+
+    Page<Event> findByStatusOrderByEventDateAsc(EStatus status, Pageable pageable);
 
     Page<Event> findByCityNameAndStatusIn(String cityName, List<EStatus> statuses, Pageable pageable);
 
@@ -34,4 +35,10 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
             @Param("cityId") Long cityId,
             @Param("eventDate") LocalDate eventDate
     );
+    @Query("SELECT new de.saarland.events.dto.CityEventCountDto(e.city.name, COUNT(e)) " +
+            "FROM Event e " +
+            "WHERE e.status IN (de.saarland.events.model.EStatus.APPROVED, de.saarland.events.model.EStatus.REJECTED) " +
+            "GROUP BY e.city.name " +
+            "ORDER BY e.city.name ASC")
+    List<CityEventCountDto> countEventsByCity();
 }
