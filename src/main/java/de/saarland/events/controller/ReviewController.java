@@ -5,6 +5,7 @@ import de.saarland.events.dto.ReviewResponseDto;
 import de.saarland.events.mapper.ReviewMapper;
 import de.saarland.events.model.Review;
 import de.saarland.events.security.services.UserDetailsImpl;
+import de.saarland.events.service.RecaptchaService;
 import de.saarland.events.service.ReviewService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -22,10 +23,12 @@ public class ReviewController {
 
     private final ReviewService reviewService;
     private final ReviewMapper reviewMapper;
+    private final RecaptchaService recaptchaService;
 
-    public ReviewController(ReviewService reviewService, ReviewMapper reviewMapper) {
+    public ReviewController(ReviewService reviewService, ReviewMapper reviewMapper, RecaptchaService recaptchaService) {
         this.reviewService = reviewService;
         this.reviewMapper = reviewMapper;
+        this.recaptchaService = recaptchaService;
     }
 
     @GetMapping
@@ -41,6 +44,10 @@ public class ReviewController {
     public ResponseEntity<ReviewResponseDto> addReview(@PathVariable Long eventId,
                                                        @Valid @RequestBody ReviewRequestDto reviewRequestDto,
                                                        Authentication authentication) {
+
+        if (!recaptchaService.verify(reviewRequestDto.getRecaptchaToken())) {
+            return ResponseEntity.badRequest().build();
+        }
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         Long userId = userDetails.getId();

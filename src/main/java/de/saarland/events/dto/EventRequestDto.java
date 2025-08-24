@@ -1,4 +1,4 @@
-// src/main/java/de/saarland/events/dto/EventRequestDto.java
+
 package de.saarland.events.dto;
 
 import jakarta.validation.constraints.Future;
@@ -6,14 +6,14 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-import java.time.ZonedDateTime; // ИЗМЕНЕНО
+import java.time.ZonedDateTime;
 import java.util.List;
 
 public class EventRequestDto {
 
     @NotNull(message = "Event date cannot be empty")
     @Future(message = "The event date must be in the future.")
-    private ZonedDateTime eventDate; // ИЗМЕНЕНО
+    private ZonedDateTime eventDate;
 
     @NotNull(message = "City ID cannot be empty")
     private Long cityId;
@@ -26,9 +26,10 @@ public class EventRequestDto {
     @NotEmpty(message = "Translation list cannot be empty")
     @Size(min = 1, message = "There must be at least one translation (German)")
     private List<TranslationDto> translations;
+    private String recaptchaToken;
 
-    // Геттеры и сеттеры
-    public ZonedDateTime getEventDate() { return eventDate; } // ИЗМЕНЕНО
+
+    public ZonedDateTime getEventDate() { return eventDate; }
     public void setEventDate(ZonedDateTime eventDate) { this.eventDate = eventDate; } // ИЗМЕНЕНО
     public Long getCityId() { return cityId; }
     public void setCityId(Long cityId) { this.cityId = cityId; }
@@ -38,4 +39,6 @@ public class EventRequestDto {
     public void setCategoryId(Long categoryId) { this.categoryId = categoryId; }
     public List<TranslationDto> getTranslations() { return translations; }
     public void setTranslations(List<TranslationDto> translations) { this.translations = translations; }
+    public String getRecaptchaToken() { return recaptchaToken; }
+    public void setRecaptchaToken(String recaptchaToken) { this.recaptchaToken = recaptchaToken; }
 }

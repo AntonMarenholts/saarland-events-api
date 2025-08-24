@@ -12,6 +12,7 @@ public class ReviewRequestDto {
     private Integer rating;
 
     private String comment;
+    private String recaptchaToken;
 
 
     public Integer getRating() {
@@ -29,4 +30,6 @@ public class ReviewRequestDto {
     public void setComment(String comment) {
         this.comment = comment;
     }
+    public String getRecaptchaToken() { return recaptchaToken; }
+    public void setRecaptchaToken(String recaptchaToken) { this.recaptchaToken = recaptchaToken; }
 }

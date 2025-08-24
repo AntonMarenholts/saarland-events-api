@@ -53,6 +53,11 @@ public class AuthController {
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+        if (!recaptchaService.verify(loginRequest.getRecaptchaToken())) {
+            return ResponseEntity
+                    .status(401)
+                    .body(new MessageResponse("Error: reCAPTCHA validation failed."));
+        }
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
@@ -132,6 +137,12 @@ public class AuthController {
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) {
         String email = request.get("email");
+        String recaptchaToken = request.get("recaptchaToken");
+        if (!recaptchaService.verify(recaptchaToken)) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: reCAPTCHA validation failed."));
+        }
         Optional<User> userOptional = userRepository.findByEmail(email);
 
         if (userOptional.isPresent()) {
