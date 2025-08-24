@@ -3,6 +3,7 @@ package de.saarland.events.dto.auth;
 
 import jakarta.validation.constraints.*;
 public class SignupRequest {
+    private String recaptchaToken;
     @NotBlank @Size(min = 3, max = 20)
     private String username;
     @NotBlank @Size(max = 50) @Email
@@ -16,4 +17,6 @@ public class SignupRequest {
     public void setEmail(String email) { this.email = email; }
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
+    public String getRecaptchaToken() { return recaptchaToken; }
+    public void setRecaptchaToken(String recaptchaToken) { this.recaptchaToken = recaptchaToken; }
 }

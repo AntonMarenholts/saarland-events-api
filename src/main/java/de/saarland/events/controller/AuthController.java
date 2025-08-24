@@ -21,8 +21,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime; // <-- 2. ИМПОРТЫ ДЛЯ ДАТЫ И UUID
+import de.saarland.events.service.RecaptchaService;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 public class AuthController {
 
 
+    private final RecaptchaService recaptchaService;
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final PasswordEncoder encoder;
@@ -41,12 +42,13 @@ public class AuthController {
     private final EmailService emailService;
 
 
-    public AuthController(AuthenticationManager authenticationManager, UserRepository userRepository, PasswordEncoder encoder, JwtUtils jwtUtils, EmailService emailService) {
+    public AuthController(AuthenticationManager authenticationManager, UserRepository userRepository, PasswordEncoder encoder, JwtUtils jwtUtils, EmailService emailService, RecaptchaService recaptchaService) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.encoder = encoder;
         this.jwtUtils = jwtUtils;
         this.emailService = emailService;
+        this.recaptchaService = recaptchaService;
     }
 
     @PostMapping("/signin")
@@ -71,6 +73,13 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
+
+        if (!recaptchaService.verify(signUpRequest.getRecaptchaToken())) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: reCAPTCHA validation failed."));
+        }
+
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
             return ResponseEntity
                     .badRequest()
@@ -82,14 +91,12 @@ public class AuthController {
                     .badRequest()
                     .body(new MessageResponse("Error: Email is already in use!"));
         }
-
         User user = new User(signUpRequest.getUsername(),
                 signUpRequest.getEmail(),
                 encoder.encode(signUpRequest.getPassword()),
                 ERole.ROLE_USER);
 
         userRepository.save(user);
-
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
 
