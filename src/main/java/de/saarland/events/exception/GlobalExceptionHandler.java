@@ -1,5 +1,6 @@
 package de.saarland.events.exception;
 
+import io.github.resilience4j.ratelimiter.RequestNotPermitted;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -12,8 +13,6 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-
-
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleEntityNotFoundException(EntityNotFoundException ex) {
         Map<String, String> response = Map.of("error", ex.getMessage());
@@ -25,16 +24,21 @@ public class GlobalExceptionHandler {
         Map<String, String> response = Map.of("error", ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Map<String, String>> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
-
         if (ex.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
             Map<String, String> response = Map.of("error", "An object with this name already exists..");
-
             return new ResponseEntity<>(response, HttpStatus.CONFLICT);
         }
-
         Map<String, String> response = Map.of("error", "Data integrity error.");
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+
+    @ExceptionHandler(RequestNotPermitted.class)
+    public ResponseEntity<Map<String, String>> handleRequestNotPermitted(RequestNotPermitted ex) {
+        Map<String, String> response = Map.of("error", "Too many requests, please try again later.");
+        return new ResponseEntity<>(response, HttpStatus.TOO_MANY_REQUESTS); // Возвращает статус 429
     }
 }

@@ -9,7 +9,9 @@ import de.saarland.events.model.User;
 import de.saarland.events.repository.UserRepository;
 import de.saarland.events.security.jwt.JwtUtils;
 import de.saarland.events.security.services.UserDetailsImpl;
-import de.saarland.events.service.EmailService; // <-- 1. ИМПОРТИРУЙТЕ EmailService
+import de.saarland.events.service.EmailService;
+import de.saarland.events.service.RecaptchaService;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import de.saarland.events.service.RecaptchaService;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -33,14 +35,12 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-
     private final RecaptchaService recaptchaService;
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final PasswordEncoder encoder;
     private final JwtUtils jwtUtils;
     private final EmailService emailService;
-
 
     public AuthController(AuthenticationManager authenticationManager, UserRepository userRepository, PasswordEncoder encoder, JwtUtils jwtUtils, EmailService emailService, RecaptchaService recaptchaService) {
         this.authenticationManager = authenticationManager;
@@ -52,6 +52,7 @@ public class AuthController {
     }
 
     @PostMapping("/signin")
+    @RateLimiter(name = "loginLimiter")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         if (!recaptchaService.verify(loginRequest.getRecaptchaToken())) {
             return ResponseEntity
@@ -78,7 +79,6 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
-
         if (!recaptchaService.verify(signUpRequest.getRecaptchaToken())) {
             return ResponseEntity
                     .badRequest()
@@ -113,7 +113,6 @@ public class AuthController {
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
 
-
         String token = parseJwt(request);
 
         return ResponseEntity.ok(new JwtResponse(
@@ -124,7 +123,6 @@ public class AuthController {
                 roles
         ));
     }
-
 
     private String parseJwt(HttpServletRequest request) {
         String headerAuth = request.getHeader("Authorization");
@@ -152,15 +150,9 @@ public class AuthController {
             user.setTokenCreationDate(LocalDateTime.now());
             userRepository.save(user);
 
-
             String resetLink = "https://saarland-event-front-hq61.vercel.app/reset-password?token=" + token;
-
-
-             emailService.sendPasswordResetEmail(user, resetLink);
-
-//            System.out.println("Password Reset Link: " + resetLink);
+            emailService.sendPasswordResetEmail(user, resetLink);
         }
-
 
         return ResponseEntity.ok(new MessageResponse("If your email is in our system, you will receive a password reset link."));
     }
@@ -180,7 +172,6 @@ public class AuthController {
 
         User user = userOptional.get();
 
-
         if (user.getTokenCreationDate() != null && user.getTokenCreationDate().plusHours(24).isBefore(LocalDateTime.now())) {
             user.setResetPasswordToken(null);
             user.setTokenCreationDate(null);
@@ -189,12 +180,10 @@ public class AuthController {
         }
 
         user.setPassword(encoder.encode(newPassword));
-        user.setResetPasswordToken(null); // Очищаем токен после использования
+        user.setResetPasswordToken(null);
         user.setTokenCreationDate(null);
         userRepository.save(user);
 
         return ResponseEntity.ok(new MessageResponse("Password has been reset successfully."));
     }
-
-
 }
