@@ -1,17 +1,20 @@
-// src/main/java/de/saarland/events/model/Event.java
 package de.saarland.events.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.time.ZonedDateTime; // ИЗМЕНЕНО
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "events")
-@AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
 public class Event {
 
     @Id
@@ -19,14 +22,13 @@ public class Event {
     private Long id;
 
     @Column(nullable = false)
-    private ZonedDateTime eventDate; // ИЗМЕНЕНО
+    private ZonedDateTime eventDate;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "city_id", nullable = false)
     private City city;
 
     private String imageUrl;
-
 
     @JsonManagedReference
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
@@ -42,24 +44,4 @@ public class Event {
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Reminder> reminders = new ArrayList<>();
-
-    public Event() {}
-
-    // Геттеры и сеттеры
-    public List<Reminder> getReminders() { return reminders; }
-    public void setReminders(List<Reminder> reminders) { this.reminders = reminders; }
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public ZonedDateTime getEventDate() { return eventDate; } // ИЗМЕНЕНО
-    public void setEventDate(ZonedDateTime eventDate) { this.eventDate = eventDate; } // ИЗМЕНЕНО
-    public City getCity() { return city; }
-    public void setCity(City city) { this.city = city; }
-    public String getImageUrl() { return imageUrl; }
-    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
-    public List<Translation> getTranslations() { return translations; }
-    public void setTranslations(List<Translation> translations) { this.translations = translations; }
-    public Category getCategory() { return category; }
-    public void setCategory(Category category) { this.category = category; }
-    public EStatus getStatus() { return status; }
-    public void setStatus(EStatus status) { this.status = status; }
 }

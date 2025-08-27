@@ -3,7 +3,11 @@ package de.saarland.events.dto;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class ReviewRequestDto {
 
     @NotNull(message = "Rating is required")
@@ -13,23 +17,4 @@ public class ReviewRequestDto {
 
     private String comment;
     private String recaptchaToken;
-
-
-    public Integer getRating() {
-        return rating;
-    }
-
-    public void setRating(Integer rating) {
-        this.rating = rating;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
-    public String getRecaptchaToken() { return recaptchaToken; }
-    public void setRecaptchaToken(String recaptchaToken) { this.recaptchaToken = recaptchaToken; }
 }
