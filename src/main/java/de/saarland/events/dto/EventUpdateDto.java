@@ -1,17 +1,20 @@
-// src/main/java/de/saarland/events/dto/EventUpdateDto.java
 package de.saarland.events.dto;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.time.ZonedDateTime; // ИЗМЕНЕНО
+import java.time.ZonedDateTime;
 import java.util.List;
 
+@Getter
+@Setter
 public class EventUpdateDto {
 
     @NotNull(message = "Event date cannot be empty")
-    private ZonedDateTime eventDate; // ИЗМЕНЕНО
+    private ZonedDateTime eventDate;
 
     @NotNull(message = "City ID cannot be empty")
     private Long cityId;
@@ -24,16 +27,4 @@ public class EventUpdateDto {
     @NotEmpty(message = "Translation list cannot be empty")
     @Size(min = 1, message = "There must be at least one translation (German)")
     private List<TranslationDto> translations;
-
-    // Геттеры и сеттеры
-    public ZonedDateTime getEventDate() { return eventDate; } // ИЗМЕНЕНО
-    public void setEventDate(ZonedDateTime eventDate) { this.eventDate = eventDate; } // ИЗМЕНЕНО
-    public Long getCityId() { return cityId; }
-    public void setCityId(Long cityId) { this.cityId = cityId; }
-    public String getImageUrl() { return imageUrl; }
-    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
-    public Long getCategoryId() { return categoryId; }
-    public void setCategoryId(Long categoryId) { this.categoryId = categoryId; }
-    public List<TranslationDto> getTranslations() { return translations; }
-    public void setTranslations(List<TranslationDto> translations) { this.translations = translations; }
 }
