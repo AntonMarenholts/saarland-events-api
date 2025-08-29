@@ -4,15 +4,14 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import java.time.ZonedDateTime;
 
 @Entity
-@Table(name = "reviews")
+@Table(name = "payment_orders")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Review {
+public class PaymentOrder {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,10 +26,18 @@ public class Review {
     private Event event;
 
     @Column(nullable = false)
-    private int rating; // 1-5
+    private Long amount;
 
-    @Column(columnDefinition = "TEXT")
-    private String comment;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EPaymentStatus status;
+
+    @Column(nullable = false)
+    private String currency;
+
+    private String stripeSessionId;
+
+    private int promotionDays;
 
     @Column(nullable = false)
     private ZonedDateTime createdAt;

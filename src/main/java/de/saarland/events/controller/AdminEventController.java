@@ -4,6 +4,7 @@ import de.saarland.events.dto.*;
 import de.saarland.events.mapper.EventMapper;
 import de.saarland.events.model.EStatus;
 import de.saarland.events.model.Event;
+import de.saarland.events.security.services.UserDetailsImpl;
 import de.saarland.events.service.EventService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -50,9 +52,12 @@ public class AdminEventController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<EventResponseDto> createEvent(@Valid @RequestBody EventRequestDto eventRequestDto) {
+    public ResponseEntity<EventResponseDto> createEvent(@Valid @RequestBody EventRequestDto eventRequestDto, Authentication authentication) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        Long userId = userDetails.getId();
+
         Event eventToCreate = eventMapper.toEntity(eventRequestDto);
-        Event createdEvent = eventService.createEvent(eventToCreate, eventRequestDto.getCategoryId(), eventRequestDto.getCityId());
+        Event createdEvent = eventService.createEvent(eventToCreate, eventRequestDto.getCategoryId(), eventRequestDto.getCityId(), userId);
         EventResponseDto responseDto = eventMapper.toResponseDto(createdEvent);
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }

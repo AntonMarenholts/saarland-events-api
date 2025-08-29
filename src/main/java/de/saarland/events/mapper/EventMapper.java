@@ -1,9 +1,8 @@
-// src/main/java/de/saarland/events/mapper/EventMapper.java
 package de.saarland.events.mapper;
 
 import de.saarland.events.dto.EventRequestDto;
 import de.saarland.events.dto.EventResponseDto;
-import de.saarland.events.dto.EventUpdateDto; // <-- 1. ИМПОРТИРУЙТЕ НОВЫЙ DTO
+import de.saarland.events.dto.EventUpdateDto;
 import de.saarland.events.dto.TranslationDto;
 import de.saarland.events.model.Event;
 import de.saarland.events.model.Translation;
@@ -37,6 +36,13 @@ public class EventMapper {
                 .map(this::toTranslationDto)
                 .collect(Collectors.toList()));
         dto.setStatus(event.getStatus());
+        if (event.getCreatedBy() != null) {
+            dto.setCreatedByUserId(event.getCreatedBy().getId());
+        }
+
+
+        dto.setPremium(event.isPremium());
+        dto.setPremiumUntil(event.getPremiumUntil());
 
         return dto;
     }
@@ -56,7 +62,6 @@ public class EventMapper {
         return event;
     }
 
-    // V-- 2. ДОБАВЬТЕ ЭТОТ НОВЫЙ МЕТОД --V
     public Event toEntity(EventUpdateDto dto) {
         if (dto == null) {
             return null;
@@ -71,7 +76,6 @@ public class EventMapper {
 
         return event;
     }
-    // ^-- КОНЕЦ НОВОГО МЕТОДА --^
 
     private TranslationDto toTranslationDto(Translation translation) {
         if (translation == null) return null;

@@ -44,4 +44,15 @@ public class Event {
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Reminder> reminders = new ArrayList<>();
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by_user_id")
+    private User createdBy;
+
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean isPremium = false;
+
+    private ZonedDateTime premiumUntil;
+
 }

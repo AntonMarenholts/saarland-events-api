@@ -8,9 +8,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
 
 @Entity
 @Table(name = "users")
@@ -44,13 +46,19 @@ public class User {
 
     private String resetPasswordToken;
 
-    private LocalDateTime tokenCreationDate;
+    private ZonedDateTime tokenCreationDate;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_favorites",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "event_id"))
     private Set<Event> favoriteEvents = new HashSet<>();
+
+
+    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Event> createdEvents = new ArrayList<>();
+
+
 
     public User(String username, String email, String password, ERole role) {
         this.username = username;

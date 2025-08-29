@@ -1,21 +1,26 @@
-
-
 package de.saarland.events.controller;
 
 import de.saarland.events.dto.EventRequestDto;
 import de.saarland.events.dto.EventResponseDto;
 import de.saarland.events.mapper.EventMapper;
 import de.saarland.events.model.Event;
+import de.saarland.events.security.services.UserDetailsImpl;
 import de.saarland.events.service.EventService;
+import de.saarland.events.service.RecaptchaService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import de.saarland.events.service.RecaptchaService;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/user/events")
+@RequestMapping("/api/user")
 public class UserEventController {
 
     private final EventService eventService;
@@ -28,17 +33,29 @@ public class UserEventController {
         this.recaptchaService = recaptchaService;
     }
 
-    @PostMapping
+    @PostMapping("/events")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public ResponseEntity<EventResponseDto> submitEvent(@Valid @RequestBody EventRequestDto eventRequestDto) {
+    public ResponseEntity<EventResponseDto> submitEvent(@Valid @RequestBody EventRequestDto eventRequestDto, Authentication authentication) {
         if (!recaptchaService.verify(eventRequestDto.getRecaptchaToken())) {
             return ResponseEntity.badRequest().build();
         }
 
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        Long userId = userDetails.getId();
+
         Event eventToCreate = eventMapper.toEntity(eventRequestDto);
-        Event createdEvent = eventService.createEvent(eventToCreate, eventRequestDto.getCategoryId(), eventRequestDto.getCityId());
+        Event createdEvent = eventService.createEvent(eventToCreate, eventRequestDto.getCategoryId(), eventRequestDto.getCityId(), userId);
         EventResponseDto responseDto = eventMapper.toResponseDto(createdEvent);
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
+    @GetMapping("/my-events")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Page<EventResponseDto>> getMyEvents(Authentication authentication, Pageable pageable) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        Long userId = userDetails.getId();
+        Page<Event> myEventsPage = eventService.findEventsByCreator(userId, pageable);
+        Page<EventResponseDto> dtoPage = myEventsPage.map(eventMapper::toResponseDto);
+        return ResponseEntity.ok(dtoPage);
+    }
 }
