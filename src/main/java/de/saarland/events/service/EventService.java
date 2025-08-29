@@ -58,11 +58,13 @@ public class EventService {
     }
 
     @Transactional
-    public Event createEvent(Event event, Long categoryId, Long cityId) {
+    public Event createEvent(Event event, Long categoryId, Long cityId, Long userId) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new EntityNotFoundException("Category with ID " + categoryId + " not found"));
         City city = cityRepository.findById(cityId)
                 .orElseThrow(() -> new EntityNotFoundException("City with ID " + cityId + " not found"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User with ID " + userId + " not found"));
 
 
         String germanName = event.getTranslations().stream()
@@ -82,6 +84,7 @@ public class EventService {
         }
         event.setCategory(category);
         event.setCity(city);
+        event.setCreatedBy(user);
         event.getTranslations().forEach(translation -> translation.setEvent(event));
 
         if (event.getStatus() == null) {
@@ -152,5 +155,10 @@ public class EventService {
         long totalCategories = categoryRepository.count();
 
         return new AdminStatsDto(totalEvents, pendingEvents, approvedEvents, totalUsers, totalCategories);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Event> findEventsByCreator(Long userId, Pageable pageable) {
+        return eventRepository.findByCreatedByIdOrderByEventDateAsc(userId, pageable);
     }
 }

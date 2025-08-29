@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 
 @Service
 public class EmailService {
@@ -41,8 +43,6 @@ public class EmailService {
         sendEmail(user.getEmail(), subject, textContent);
     }
 
-
-
     public void sendPasswordResetEmail(User user, String resetLink) {
         String subject = "Password Reset Request";
         String textContent = String.format(
@@ -54,6 +54,22 @@ public class EmailService {
         );
         sendEmail(user.getEmail(), subject, textContent);
     }
+
+    public void sendPremiumActivationEmail(User user, Event event) {
+        String subject = "Your event '" + event.getTranslations().getFirst().getName() + "' is now premium!";
+        DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM);
+        String formattedDate = event.getPremiumUntil().format(formatter);
+
+        String textContent = String.format(
+                "Hello, %s!\n\nThank you for your payment. Your event '%s' will now be featured in the premium block until %s.\n\n" +
+                        "Best wishes, the Afisha Saarland team!",
+                user.getUsername(),
+                event.getTranslations().getFirst().getName(),
+                formattedDate
+        );
+        sendEmail(user.getEmail(), subject, textContent);
+    }
+
 
     private void sendEmail(String toEmail, String subject, String textContent) {
         Email from = new Email(fromEmail);
