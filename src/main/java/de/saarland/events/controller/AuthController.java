@@ -23,8 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -147,7 +146,7 @@ public class AuthController {
             User user = userOptional.get();
             String token = UUID.randomUUID().toString();
             user.setResetPasswordToken(token);
-            user.setTokenCreationDate(LocalDateTime.now());
+            user.setTokenCreationDate(ZonedDateTime.now());
             userRepository.save(user);
 
             String resetLink = "https://saarland-event-front-hq61.vercel.app/reset-password?token=" + token;
@@ -172,7 +171,7 @@ public class AuthController {
 
         User user = userOptional.get();
 
-        if (user.getTokenCreationDate() != null && user.getTokenCreationDate().plusHours(24).isBefore(LocalDateTime.now())) {
+        if (user.getTokenCreationDate() != null && user.getTokenCreationDate().plusHours(24).isBefore(ZonedDateTime.now())) {
             user.setResetPasswordToken(null);
             user.setTokenCreationDate(null);
             userRepository.save(user);

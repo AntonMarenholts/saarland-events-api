@@ -4,20 +4,23 @@ import de.saarland.events.dto.EventRequestDto;
 import de.saarland.events.dto.EventResponseDto;
 import de.saarland.events.mapper.EventMapper;
 import de.saarland.events.model.Event;
+import de.saarland.events.security.services.UserDetailsImpl;
 import de.saarland.events.service.EventService;
 import de.saarland.events.service.RecaptchaService;
-import de.saarland.events.security.services.UserDetailsImpl;
-import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @RestController
-@RequestMapping("/api/user/events")
+@RequestMapping("/api/user")
 public class UserEventController {
 
     private final EventService eventService;
@@ -30,7 +33,7 @@ public class UserEventController {
         this.recaptchaService = recaptchaService;
     }
 
-    @PostMapping
+    @PostMapping("/events")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<EventResponseDto> submitEvent(@Valid @RequestBody EventRequestDto eventRequestDto, Authentication authentication) {
         if (!recaptchaService.verify(eventRequestDto.getRecaptchaToken())) {
@@ -51,7 +54,8 @@ public class UserEventController {
     public ResponseEntity<Page<EventResponseDto>> getMyEvents(Authentication authentication, Pageable pageable) {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         Long userId = userDetails.getId();
-        Page<Event> eventPage = eventService.findEventsByCreator(userId, pageable);
-        return ResponseEntity.ok(eventPage.map(eventMapper::toResponseDto));
+        Page<Event> myEventsPage = eventService.findEventsByCreator(userId, pageable);
+        Page<EventResponseDto> dtoPage = myEventsPage.map(eventMapper::toResponseDto);
+        return ResponseEntity.ok(dtoPage);
     }
 }

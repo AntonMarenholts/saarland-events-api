@@ -18,4 +18,6 @@ public class EventResponseDto {
     private List<TranslationDto> translations;
     private EStatus status;
     private Long createdByUserId;
+    private boolean isPremium;
+    private ZonedDateTime premiumUntil;
 }

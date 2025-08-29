@@ -31,10 +31,12 @@ public class PaymentController {
         try {
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
             Long userId = userDetails.getId();
+            request.setUserId(userId);
 
-            Session session = paymentService.createPaymentSession(request, userId);
+            Session session = paymentService.createStripeSession(request);
             return ResponseEntity.ok(new CreatePaymentResponse(session.getUrl()));
         } catch (StripeException e) {
+            e.printStackTrace();
             return ResponseEntity.status(500).body(null);
         }
     }

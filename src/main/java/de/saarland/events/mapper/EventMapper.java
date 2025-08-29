@@ -40,6 +40,10 @@ public class EventMapper {
             dto.setCreatedByUserId(event.getCreatedBy().getId());
         }
 
+
+        dto.setPremium(event.isPremium());
+        dto.setPremiumUntil(event.getPremiumUntil());
+
         return dto;
     }
 

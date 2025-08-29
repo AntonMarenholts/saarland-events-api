@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.List;
@@ -46,7 +46,7 @@ public class User {
 
     private String resetPasswordToken;
 
-    private LocalDateTime tokenCreationDate;
+    private ZonedDateTime tokenCreationDate;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_favorites",

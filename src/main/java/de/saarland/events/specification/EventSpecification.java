@@ -1,4 +1,4 @@
-// src/main/java/de/saarland/events/specification/EventSpecification.java
+
 package de.saarland.events.specification;
 
 import de.saarland.events.model.EStatus;
@@ -10,8 +10,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId; // ИМПОРТ
-import java.time.ZonedDateTime; // ИМПОРТ
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -30,7 +30,7 @@ public class EventSpecification {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(criteriaBuilder.equal(root.get("status"), EStatus.APPROVED));
-            predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("eventDate"), ZonedDateTime.now())); // ИЗМЕНЕНО
+            predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("eventDate"), ZonedDateTime.now()));
 
             cityName.ifPresent(c -> predicates.add(criteriaBuilder.equal(root.get("city").get("name"), c)));
             categoryId.ifPresent(id -> predicates.add(criteriaBuilder.equal(root.get("category").get("id"), id)));
@@ -43,7 +43,6 @@ public class EventSpecification {
                 predicates.add(criteriaBuilder.or(namePredicate, descPredicate));
             });
 
-            // V-- ЭТОТ БЛОК ИЗМЕНЕН ДЛЯ ZonedDateTime --V
             if (year.isPresent() && month.isPresent()) {
                 ZonedDateTime startDate = ZonedDateTime.of(year.get(), month.get(), 1, 0, 0, 0, 0, ZoneId.systemDefault());
                 ZonedDateTime endDate = startDate.plusMonths(1);
@@ -58,10 +57,10 @@ public class EventSpecification {
                 ZonedDateTime endDate = startDate.plusMonths(1);
                 predicates.add(criteriaBuilder.between(root.get("eventDate"), startDate, endDate));
             }
-            // ^-- КОНЕЦ ИЗМЕНЕНИЙ --^
 
             query.distinct(true);
-            query.orderBy(criteriaBuilder.asc(root.get("eventDate")));
+            // СНАЧАЛА ПРЕМИУМ, ПОТОМ ПО ДАТЕ
+            query.orderBy(criteriaBuilder.desc(root.get("isPremium")), criteriaBuilder.asc(root.get("eventDate")));
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
     }

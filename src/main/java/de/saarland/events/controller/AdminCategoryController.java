@@ -4,6 +4,7 @@ import de.saarland.events.dto.CategoryDto;
 import de.saarland.events.mapper.CategoryMapper;
 import de.saarland.events.model.Category;
 import de.saarland.events.service.CategoryService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,7 +37,7 @@ public class AdminCategoryController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CategoryDto> updateCategory(@PathVariable Long id, @RequestBody CategoryDto categoryDto) {
+    public ResponseEntity<CategoryDto> updateCategory(@PathVariable Long id, @Valid @RequestBody CategoryDto categoryDto) {
         Category category = categoryMapper.toEntity(categoryDto);
         Category updatedCategory = categoryService.updateCategory(id, category);
         return ResponseEntity.ok(categoryMapper.toDto(updatedCategory));

@@ -21,11 +21,12 @@ public class PremiumCleanupService {
         this.eventRepository = eventRepository;
     }
 
-    @Scheduled(cron = "0 0 1 * * ?")
+    @Scheduled(cron = "0 0 1 * * ?") // Run every day at 1 AM
     @Transactional
     public void cleanupExpiredPremiums() {
         logger.info("Running scheduled job to clean up expired premium events...");
-        List<Event> expiredEvents = eventRepository.findAllByIsPremiumTrueAndPremiumUntilBefore(ZonedDateTime.now());
+
+        List<Event> expiredEvents = eventRepository.findByIsPremiumTrueAndPremiumUntilBefore(ZonedDateTime.now());
 
         if (expiredEvents.isEmpty()) {
             logger.info("No expired premium events found.");
@@ -37,8 +38,6 @@ public class PremiumCleanupService {
             event.setPremium(false);
             event.setPremiumUntil(null);
             eventRepository.save(event);
-            logger.info("Deactivated premium status for event ID: {}", event.getId());
         }
-        logger.info("Finished cleaning up expired premium events.");
     }
 }

@@ -9,14 +9,13 @@ import com.sendgrid.helpers.mail.objects.Content;
 import com.sendgrid.helpers.mail.objects.Email;
 import de.saarland.events.model.Event;
 import de.saarland.events.model.User;
+import de.saarland.events.model.Translation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 
 @Service
 public class EmailService {
@@ -27,21 +26,28 @@ public class EmailService {
     @Value("${app.email.from}")
     private String fromEmail;
 
+
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
+
     public EmailService(@Value("${SENDGRID_API_KEY}") String sendGridApiKey) {
         this.sendGrid = new SendGrid(sendGridApiKey);
     }
 
     public void sendReminderEmail(User user, Event event) {
-        String subject = "Event Reminder: " + event.getTranslations().getFirst().getName();
+        String eventName = event.getTranslations().getFirst().getName();
+        String subject = "Event Reminder: " + eventName;
         String textContent = String.format(
                 "Hello, %s!\n\nWe remind you that the event you saved will start soon: '%s'.\nIt will happen %s.\n\n" +
                         "Best wishes, the Afisha Saarland team!",
                 user.getUsername(),
-                event.getTranslations().getFirst().getName(),
+                eventName,
                 event.getEventDate().toString()
         );
         sendEmail(user.getEmail(), subject, textContent);
     }
+
+
 
     public void sendPasswordResetEmail(User user, String resetLink) {
         String subject = "Password Reset Request";
@@ -55,17 +61,38 @@ public class EmailService {
         sendEmail(user.getEmail(), subject, textContent);
     }
 
-    public void sendPremiumActivationEmail(User user, Event event) {
-        String subject = "Your event '" + event.getTranslations().getFirst().getName() + "' is now premium!";
-        DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM);
-        String formattedDate = event.getPremiumUntil().format(formatter);
 
+    public void sendPromotionConfirmationEmail(User user, Event event) {
+        String eventName = event.getTranslations().getFirst().getName();
+        String subject = "Your event '" + eventName + "' has been promoted!";
         String textContent = String.format(
                 "Hello, %s!\n\nThank you for your payment. Your event '%s' will now be featured in the premium block until %s.\n\n" +
                         "Best wishes, the Afisha Saarland team!",
                 user.getUsername(),
-                event.getTranslations().getFirst().getName(),
-                formattedDate
+                eventName,
+                event.getPremiumUntil().toLocalDate().toString()
+        );
+        sendEmail(user.getEmail(), subject, textContent);
+    }
+
+
+    public void sendEventApprovedEmail(User user, Event event) {
+        String eventName = event.getTranslations().stream()
+                .filter(t -> "de".equals(t.getLocale()))
+                .findFirst()
+                .map(Translation::getName)
+                .orElse(event.getTranslations().isEmpty() ? "Ihr Event" : event.getTranslations().get(0).getName());
+
+        String subject = "Ihr Event '" + eventName + "' wurde genehmigt!";
+        String promotionLink = frontendUrl + "/promote/" + event.getId();
+
+        String textContent = String.format(
+                "Hallo, %s!\n\nIhr Event '%s' wurde genehmigt und ist jetzt auf unserer Webseite veröffentlicht.\n\n" +
+                        "Möchten Sie mehr Besucher erreichen? Bewerben Sie Ihr Event hier: %s\n\n" +
+                        "Mit freundlichen Grüßen,\nIhr Team von Afisha Saarland!",
+                user.getUsername(),
+                eventName,
+                promotionLink
         );
         sendEmail(user.getEmail(), subject, textContent);
     }
@@ -89,5 +116,5 @@ public class EmailService {
             throw new RuntimeException("Failed to send email", ex);
         }
     }
-
 }
+

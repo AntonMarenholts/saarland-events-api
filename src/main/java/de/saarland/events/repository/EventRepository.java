@@ -43,8 +43,8 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
             "ORDER BY e.city.name ASC")
     List<CityEventCountDto> countEventsByCity();
 
-    Page<Event> findByCreatedByIdOrderByEventDateAsc(Long userId, Pageable pageable);
+    Page<Event> findByCreatedBy_Id(Long userId, Pageable pageable);
 
-
-    List<Event> findAllByIsPremiumTrueAndPremiumUntilBefore(ZonedDateTime currentTime);
+    List<Event> findByIsPremiumTrueAndPremiumUntilBefore(ZonedDateTime now);
 }
+

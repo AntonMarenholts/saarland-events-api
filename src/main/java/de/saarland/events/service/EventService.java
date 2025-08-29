@@ -14,8 +14,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.Arrays;
+
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,14 +27,15 @@ public class EventService {
     private final CityRepository cityRepository;
     private final EventSpecification eventSpecification;
     private final UserRepository userRepository;
+    private final EmailService emailService;
 
-
-    public EventService(EventRepository eventRepository, CategoryRepository categoryRepository, CityRepository cityRepository, EventSpecification eventSpecification, UserRepository userRepository) {
+    public EventService(EventRepository eventRepository, CategoryRepository categoryRepository, CityRepository cityRepository, EventSpecification eventSpecification, UserRepository userRepository, EmailService emailService) {
         this.eventRepository = eventRepository;
         this.categoryRepository = categoryRepository;
         this.cityRepository = cityRepository;
         this.eventSpecification = eventSpecification;
         this.userRepository = userRepository;
+        this.emailService = emailService;
     }
 
     @Transactional(readOnly = true)
@@ -59,12 +61,12 @@ public class EventService {
 
     @Transactional
     public Event createEvent(Event event, Long categoryId, Long cityId, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with ID " + userId));
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new EntityNotFoundException("Category with ID " + categoryId + " not found"));
         City city = cityRepository.findById(cityId)
                 .orElseThrow(() -> new EntityNotFoundException("City with ID " + cityId + " not found"));
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User with ID " + userId + " not found"));
 
 
         String germanName = event.getTranslations().stream()
@@ -82,9 +84,10 @@ public class EventService {
                 );
             }
         }
+
+        event.setCreatedBy(user);
         event.setCategory(category);
         event.setCity(city);
-        event.setCreatedBy(user);
         event.getTranslations().forEach(translation -> translation.setEvent(event));
 
         if (event.getStatus() == null) {
@@ -129,11 +132,22 @@ public class EventService {
     }
 
     @Transactional
-    public Event updateEventStatus(Long eventId, EStatus status) {
+    public Event updateEventStatus(Long eventId, EStatus newStatus) {
         Event existingEvent = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Event with ID " + eventId + " not found"));
-        existingEvent.setStatus(status);
-        return eventRepository.save(existingEvent);
+
+        EStatus oldStatus = existingEvent.getStatus();
+        existingEvent.setStatus(newStatus);
+        Event savedEvent = eventRepository.save(existingEvent);
+
+        if (oldStatus == EStatus.PENDING && newStatus == EStatus.APPROVED) {
+            User creator = savedEvent.getCreatedBy();
+            if (creator != null) {
+                emailService.sendEventApprovedEmail(creator, savedEvent);
+            }
+        }
+
+        return savedEvent;
     }
 
     @Transactional(readOnly = true)
@@ -159,6 +173,7 @@ public class EventService {
 
     @Transactional(readOnly = true)
     public Page<Event> findEventsByCreator(Long userId, Pageable pageable) {
-        return eventRepository.findByCreatedByIdOrderByEventDateAsc(userId, pageable);
+        return eventRepository.findByCreatedBy_Id(userId, pageable);
     }
 }
+

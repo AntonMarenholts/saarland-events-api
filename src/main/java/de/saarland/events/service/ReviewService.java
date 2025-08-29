@@ -1,4 +1,3 @@
-// src/main/java/de/saarland/events/service/ReviewService.java
 package de.saarland.events.service;
 
 import de.saarland.events.dto.ReviewRequestDto;
@@ -12,8 +11,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime; // ИМПОРТ
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Service
@@ -36,30 +34,25 @@ public class ReviewService {
 
     @Transactional
     public Review createReview(Long eventId, Long userId, ReviewRequestDto reviewDto) {
-
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + eventId));
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
 
-
-        // V-- ЭТА СТРОКА ИСПРАВЛЕНА --V
         if (event.getEventDate().isAfter(ZonedDateTime.now())) {
             throw new IllegalArgumentException("You can only review past events.");
         }
 
-
         reviewRepository.findByEventIdAndUserId(eventId, userId).ifPresent(r -> {
             throw new IllegalArgumentException("User has already reviewed this event.");
         });
-
 
         Review review = new Review();
         review.setEvent(event);
         review.setUser(user);
         review.setRating(reviewDto.getRating());
         review.setComment(reviewDto.getComment());
-        review.setCreatedAt(LocalDateTime.now());
+        review.setCreatedAt(ZonedDateTime.now());
 
         return reviewRepository.save(review);
     }
