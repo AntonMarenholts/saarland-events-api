@@ -2,7 +2,8 @@ package de.saarland.events.service;
 
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
-import com.stripe.model.Event;
+import com.stripe.model.EventDataObjectDeserializer;
+import com.stripe.model.StripeObject;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
 import de.saarland.events.dto.payment.CreatePaymentRequest;
@@ -22,11 +23,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class PaymentService {
 
-    // ++ ДОБАВЬТЕ ЭТИ ДВЕ СТРОКИ ++
     private static final Logger logger = LoggerFactory.getLogger(PaymentService.class);
 
     @Value("${STRIPE_SECRET_KEY}")
@@ -58,7 +59,7 @@ public class PaymentService {
 
     @Transactional
     public Session createStripeSession(CreatePaymentRequest request) throws StripeException {
-        // Этот метод мы не меняем, он работает правильно
+
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
         de.saarland.events.model.Event event = eventRepository.findById(request.getEventId())
@@ -119,38 +120,34 @@ public class PaymentService {
         return session;
     }
 
-    // ++ ЗАМЕНИТЕ ВАШ МЕТОД handleStripeEvent НА ЭТОТ ++
+
     @Transactional
-    public void handleStripeEvent(Event stripeEvent) {
+    public void handleStripeEvent(com.stripe.model.Event stripeEvent) {
         logger.info("Received Stripe event: type = {}", stripeEvent.getType());
 
         if ("checkout.session.completed".equals(stripeEvent.getType())) {
             logger.info("Processing checkout.session.completed event.");
-            Session session = stripeEvent.getDataObjectDeserializer().getObject().map(obj -> (Session) obj).orElse(null);
 
-            if (session == null) {
-                logger.error("Could not deserialize Stripe session object from webhook.");
+            EventDataObjectDeserializer dataObjectDeserializer = stripeEvent.getDataObjectDeserializer();
+            StripeObject stripeObject = null;
+            if (dataObjectDeserializer.getObject().isPresent()) {
+                stripeObject = dataObjectDeserializer.getObject().get();
+            } else {
+                logger.error("Could not deserialize Stripe event data object.");
                 return;
             }
 
-            logger.info("Stripe session ID: {}", session.getId());
-            String orderIdStr = session.getMetadata().get("orderId");
+            Session session = (Session) stripeObject;
+            logger.info("Stripe session ID from webhook: {}", session.getId());
 
-            if (orderIdStr == null) {
-                logger.error("Webhook for session {} is missing 'orderId' in metadata.", session.getId());
-                return;
-            }
+            PaymentOrder order = paymentOrderRepository.findByStripeSessionId(session.getId()).orElse(null);
 
-            logger.info("Found orderId in metadata: {}", orderIdStr);
-            Long orderId = Long.parseLong(orderIdStr);
-
-            PaymentOrder order = paymentOrderRepository.findById(orderId).orElse(null);
             if (order == null) {
-                logger.error("PaymentOrder with ID {} not found in the database.", orderId);
+                logger.error("PaymentOrder with Stripe Session ID {} not found in the database.", session.getId());
                 return;
             }
 
-            logger.info("Found PaymentOrder with ID {}. Current status: {}", orderId, order.getStatus());
+            logger.info("Found PaymentOrder with ID {}. Current status: {}", order.getId(), order.getStatus());
 
             if (order.getStatus() == EPaymentStatus.PENDING) {
                 logger.info("Order status is PENDING. Updating event to premium...");
@@ -171,13 +168,9 @@ public class PaymentService {
                 } catch (Exception e) {
                     logger.error("Failed to send promotion confirmation email.", e);
                 }
-
             } else {
-                logger.warn("Order with ID {} was already processed. Current status: {}. No action taken.", orderId, order.getStatus());
+                logger.warn("Order with ID {} was already processed. Current status: {}. No action taken.", order.getId(), order.getStatus());
             }
         }
     }
 }
-
-
-
