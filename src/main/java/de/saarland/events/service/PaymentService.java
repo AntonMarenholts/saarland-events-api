@@ -120,7 +120,7 @@ public class PaymentService {
         return session;
     }
 
-
+    // ++ ЗАМЕНИТЕ ВАШ МЕТОД handleStripeEvent НА ЭТОТ ОБНОВЛЕННЫЙ ВАРИАНТ ++
     @Transactional
     public void handleStripeEvent(com.stripe.model.Event stripeEvent) {
         logger.info("Received Stripe event: type = {}", stripeEvent.getType());
