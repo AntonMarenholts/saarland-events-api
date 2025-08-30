@@ -3,10 +3,7 @@ package de.saarland.events.service;
 import de.saarland.events.dto.AdminStatsDto;
 import de.saarland.events.dto.CityEventCountDto;
 import de.saarland.events.model.*;
-import de.saarland.events.repository.CategoryRepository;
-import de.saarland.events.repository.CityRepository;
-import de.saarland.events.repository.EventRepository;
-import de.saarland.events.repository.UserRepository;
+import de.saarland.events.repository.*;
 import de.saarland.events.specification.EventSpecification;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
@@ -14,7 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import de.saarland.events.repository.PaymentOrderRepository;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -28,14 +25,20 @@ public class EventService {
     private final EventSpecification eventSpecification;
     private final UserRepository userRepository;
     private final EmailService emailService;
+    private final PaymentOrderRepository paymentOrderRepository;
+    private final ReviewRepository reviewRepository;
+    private final ReminderRepository reminderRepository;
 
-    public EventService(EventRepository eventRepository, CategoryRepository categoryRepository, CityRepository cityRepository, EventSpecification eventSpecification, UserRepository userRepository, EmailService emailService) {
+    public EventService(EventRepository eventRepository, CategoryRepository categoryRepository, CityRepository cityRepository, EventSpecification eventSpecification, UserRepository userRepository, EmailService emailService, PaymentOrderRepository paymentOrderRepository, ReviewRepository reviewRepository, ReminderRepository reminderRepository) {
         this.eventRepository = eventRepository;
         this.categoryRepository = categoryRepository;
         this.cityRepository = cityRepository;
         this.eventSpecification = eventSpecification;
         this.userRepository = userRepository;
         this.emailService = emailService;
+        this.paymentOrderRepository = paymentOrderRepository;
+        this.reviewRepository = reviewRepository;
+        this.reminderRepository = reminderRepository;
     }
 
     @Transactional(readOnly = true)
@@ -101,10 +104,18 @@ public class EventService {
     public void deleteEvent(Long id) {
         Event eventToDelete = eventRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Cannot delete. Event with ID " + id + " not found."));
+
+
         List<User> usersWithFavorite = userRepository.findByFavoriteEventsContains(eventToDelete);
         for (User user : usersWithFavorite) {
             user.getFavoriteEvents().remove(eventToDelete);
         }
+        userRepository.saveAll(usersWithFavorite);
+
+        paymentOrderRepository.deleteAllByEventId(id);
+        reviewRepository.deleteAllByEventId(id);
+        reminderRepository.deleteAllByEventId(id);
+
         eventRepository.delete(eventToDelete);
     }
 
@@ -174,6 +185,30 @@ public class EventService {
     @Transactional(readOnly = true)
     public Page<Event> findEventsByCreator(Long userId, Pageable pageable) {
         return eventRepository.findByCreatedBy_Id(userId, pageable);
+    }
+
+    @Transactional
+    public Event updateUserEvent(Long eventId, Event updatedEventData, Long categoryId, Long cityId, Long userId) {
+        Event existingEvent = eventRepository.findById(eventId)
+                .orElseThrow(() -> new EntityNotFoundException("Event with ID " + eventId + " not found"));
+
+        if (!existingEvent.getCreatedBy().getId().equals(userId)) {
+            throw new org.springframework.security.access.AccessDeniedException("User does not have permission to update this event");
+        }
+
+        return updateEvent(eventId, updatedEventData, categoryId, cityId);
+    }
+
+    @Transactional
+    public void deleteUserEvent(Long eventId, Long userId) {
+        Event eventToDelete = eventRepository.findById(eventId)
+                .orElseThrow(() -> new EntityNotFoundException("Event with ID " + eventId + " not found."));
+
+        if (!eventToDelete.getCreatedBy().getId().equals(userId)) {
+            throw new org.springframework.security.access.AccessDeniedException("User does not have permission to delete this event");
+        }
+
+        deleteEvent(eventId);
     }
 }
 

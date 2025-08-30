@@ -12,4 +12,6 @@ public interface PaymentOrderRepository extends JpaRepository<PaymentOrder, Long
     Optional<PaymentOrder> findByStripeSessionId(String stripeSessionId);
 
     Optional<PaymentOrder> findByEventIdAndStatus(Long eventId, EPaymentStatus status);
+
+    void deleteAllByEventId(Long eventId);
 }
