@@ -2,6 +2,7 @@ package de.saarland.events.controller;
 
 import de.saarland.events.dto.EventRequestDto;
 import de.saarland.events.dto.EventResponseDto;
+import de.saarland.events.dto.EventUpdateDto;
 import de.saarland.events.mapper.EventMapper;
 import de.saarland.events.model.Event;
 import de.saarland.events.security.services.UserDetailsImpl;
@@ -16,8 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.stream.Collectors;
+
 
 @RestController
 @RequestMapping("/api/user")
@@ -57,5 +57,28 @@ public class UserEventController {
         Page<Event> myEventsPage = eventService.findEventsByCreator(userId, pageable);
         Page<EventResponseDto> dtoPage = myEventsPage.map(eventMapper::toResponseDto);
         return ResponseEntity.ok(dtoPage);
+    }
+
+    @PutMapping("/events/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<EventResponseDto> updateMyEvent(@PathVariable Long id, @Valid @RequestBody EventUpdateDto eventUpdateDto, Authentication authentication) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        Long userId = userDetails.getId();
+
+        Event eventData = eventMapper.toEntity(eventUpdateDto);
+
+        Event updatedEvent = eventService.updateUserEvent(id, eventData, eventUpdateDto.getCategoryId(), eventUpdateDto.getCityId(), userId);
+
+        EventResponseDto responseDto = eventMapper.toResponseDto(updatedEvent);
+        return ResponseEntity.ok(responseDto);
+    }
+
+    @DeleteMapping("/events/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> deleteMyEvent(@PathVariable Long id, Authentication authentication) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        Long userId = userDetails.getId();
+        eventService.deleteUserEvent(id, userId);
+        return ResponseEntity.noContent().build();
     }
 }

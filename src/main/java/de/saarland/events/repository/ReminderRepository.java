@@ -11,5 +11,6 @@ import java.util.List;
 @Repository
 public interface ReminderRepository extends JpaRepository<Reminder, Long> {
 
-    List<Reminder> findAllByRemindAtBeforeAndIsSentFalse(ZonedDateTime currentTime); // ИЗМЕНЕНО
+    List<Reminder> findAllByRemindAtBeforeAndIsSentFalse(ZonedDateTime currentTime);
+    void deleteAllByEventId(Long eventId);
 }
