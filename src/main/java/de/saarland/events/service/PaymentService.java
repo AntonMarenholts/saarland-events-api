@@ -14,6 +14,8 @@ import de.saarland.events.repository.PaymentOrderRepository;
 import de.saarland.events.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +25,9 @@ import java.util.Map;
 
 @Service
 public class PaymentService {
+
+    // ++ ДОБАВЬТЕ ЭТИ ДВЕ СТРОКИ ++
+    private static final Logger logger = LoggerFactory.getLogger(PaymentService.class);
 
     @Value("${STRIPE_SECRET_KEY}")
     private String stripeSecretKey;
@@ -53,6 +58,7 @@ public class PaymentService {
 
     @Transactional
     public Session createStripeSession(CreatePaymentRequest request) throws StripeException {
+        // Этот метод мы не меняем, он работает правильно
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
         de.saarland.events.model.Event event = eventRepository.findById(request.getEventId())
@@ -61,25 +67,20 @@ public class PaymentService {
         if (event.getStatus() != de.saarland.events.model.EStatus.APPROVED) {
             throw new IllegalArgumentException("Event is not approved for promotion.");
         }
-
         if (event.isPremium()) {
             throw new IllegalArgumentException("This event is already promoted.");
         }
-
         Long priceInCents = TARIFFS.get(request.getDays());
         if (priceInCents == null) {
             throw new IllegalArgumentException("Invalid promotion duration specified.");
         }
-
         paymentOrderRepository.findByEventIdAndStatus(request.getEventId(), EPaymentStatus.PENDING)
                 .ifPresent(paymentOrderRepository::delete);
-
         String eventName = event.getTranslations().stream()
                 .filter(t -> "de".equals(t.getLocale()))
                 .findFirst()
                 .orElse(event.getTranslations().get(0))
                 .getName();
-
         PaymentOrder order = new PaymentOrder();
         order.setUser(user);
         order.setEvent(event);
@@ -89,7 +90,6 @@ public class PaymentService {
         order.setPromotionDays(request.getDays());
         order.setCreatedAt(ZonedDateTime.now());
         PaymentOrder savedOrder = paymentOrderRepository.save(order);
-
         SessionCreateParams params = SessionCreateParams.builder()
                 .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
                 .addPaymentMethodType(SessionCreateParams.PaymentMethodType.PAYPAL)
@@ -113,39 +113,68 @@ public class PaymentService {
                                                 .build())
                                 .build())
                 .build();
-
         Session session = Session.create(params);
         savedOrder.setStripeSessionId(session.getId());
         paymentOrderRepository.save(savedOrder);
-
         return session;
     }
 
+    // ++ ЗАМЕНИТЕ ВАШ МЕТОД handleStripeEvent НА ЭТОТ ++
     @Transactional
     public void handleStripeEvent(Event stripeEvent) {
+        logger.info("Received Stripe event: type = {}", stripeEvent.getType());
+
         if ("checkout.session.completed".equals(stripeEvent.getType())) {
-            Session session = (Session) stripeEvent.getDataObjectDeserializer().getObject().orElse(null);
-            if (session != null) {
-                String orderIdStr = session.getMetadata().get("orderId");
-                if (orderIdStr != null) {
-                    Long orderId = Long.parseLong(orderIdStr);
-                    PaymentOrder order = paymentOrderRepository.findById(orderId)
-                            .orElseThrow(() -> new EntityNotFoundException("PaymentOrder not found: " + orderId));
+            logger.info("Processing checkout.session.completed event.");
+            Session session = stripeEvent.getDataObjectDeserializer().getObject().map(obj -> (Session) obj).orElse(null);
 
-                    if (order.getStatus() == EPaymentStatus.PENDING) {
-                        order.setStatus(EPaymentStatus.PAID);
+            if (session == null) {
+                logger.error("Could not deserialize Stripe session object from webhook.");
+                return;
+            }
 
-                        de.saarland.events.model.Event event = order.getEvent();
-                        event.setPremium(true);
-                        event.setPremiumUntil(ZonedDateTime.now().plusDays(order.getPromotionDays()));
-                        eventRepository.save(event);
-                        paymentOrderRepository.save(order);
+            logger.info("Stripe session ID: {}", session.getId());
+            String orderIdStr = session.getMetadata().get("orderId");
 
-                        emailService.sendPromotionConfirmationEmail(order.getUser(), event);
-                    }
+            if (orderIdStr == null) {
+                logger.error("Webhook for session {} is missing 'orderId' in metadata.", session.getId());
+                return;
+            }
+
+            logger.info("Found orderId in metadata: {}", orderIdStr);
+            Long orderId = Long.parseLong(orderIdStr);
+
+            PaymentOrder order = paymentOrderRepository.findById(orderId).orElse(null);
+            if (order == null) {
+                logger.error("PaymentOrder with ID {} not found in the database.", orderId);
+                return;
+            }
+
+            logger.info("Found PaymentOrder with ID {}. Current status: {}", orderId, order.getStatus());
+
+            if (order.getStatus() == EPaymentStatus.PENDING) {
+                logger.info("Order status is PENDING. Updating event to premium...");
+
+                order.setStatus(EPaymentStatus.PAID);
+
+                de.saarland.events.model.Event event = order.getEvent();
+                event.setPremium(true);
+                event.setPremiumUntil(ZonedDateTime.now().plusDays(order.getPromotionDays()));
+
+                eventRepository.save(event);
+                paymentOrderRepository.save(order);
+                logger.info("Successfully updated Event ID {} to premium. New status for Order ID {} is PAID.", event.getId(), order.getId());
+
+                try {
+                    emailService.sendPromotionConfirmationEmail(order.getUser(), event);
+                    logger.info("Promotion confirmation email sent to {}.", order.getUser().getEmail());
+                } catch (Exception e) {
+                    logger.error("Failed to send promotion confirmation email.", e);
                 }
+
+            } else {
+                logger.warn("Order with ID {} was already processed. Current status: {}. No action taken.", orderId, order.getStatus());
             }
         }
     }
 }
-
