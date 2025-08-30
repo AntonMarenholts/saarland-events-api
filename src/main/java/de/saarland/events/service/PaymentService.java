@@ -59,7 +59,7 @@ public class PaymentService {
 
     @Transactional
     public Session createStripeSession(CreatePaymentRequest request) throws StripeException {
-
+        // Этот метод мы не меняем, он работает правильно
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
         de.saarland.events.model.Event event = eventRepository.findById(request.getEventId())
@@ -129,15 +129,14 @@ public class PaymentService {
             logger.info("Processing checkout.session.completed event.");
 
             EventDataObjectDeserializer dataObjectDeserializer = stripeEvent.getDataObjectDeserializer();
-            StripeObject stripeObject = null;
-            if (dataObjectDeserializer.getObject().isPresent()) {
-                stripeObject = dataObjectDeserializer.getObject().get();
-            } else {
-                logger.error("Could not deserialize Stripe event data object.");
+            if (dataObjectDeserializer.getObject().isEmpty()) {
+                logger.error("Stripe event data object is empty. Cannot process webhook.");
                 return;
             }
 
+            StripeObject stripeObject = dataObjectDeserializer.getObject().get();
             Session session = (Session) stripeObject;
+
             logger.info("Stripe session ID from webhook: {}", session.getId());
 
             PaymentOrder order = paymentOrderRepository.findByStripeSessionId(session.getId()).orElse(null);
