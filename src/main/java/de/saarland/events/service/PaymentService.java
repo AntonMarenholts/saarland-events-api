@@ -128,57 +128,49 @@ public class PaymentService {
         if ("checkout.session.completed".equals(stripeEvent.getType())) {
             logger.info("Processing checkout.session.completed event.");
 
-            EventDataObjectDeserializer dataObjectDeserializer = stripeEvent.getDataObjectDeserializer();
-            if (dataObjectDeserializer.getObject().isEmpty()) {
-                logger.error("Stripe event data object is empty. Cannot process webhook.");
-                return;
-            }
 
-            StripeObject stripeObject = dataObjectDeserializer.getObject().get();
+            StripeObject stripeObject = stripeEvent.getDataObjectDeserializer().getObject()
+                    .orElseGet(() -> stripeEvent.getData().getObject());
 
             if (stripeObject instanceof Session) {
-                Session sessionFromWebhook = (Session) stripeObject;
-                logger.info("Stripe session ID from webhook: {}", sessionFromWebhook.getId());
+                Session session = (Session) stripeObject;
 
-                try {
 
-                    Session session = Session.retrieve(sessionFromWebhook.getId());
+                logger.info("Stripe session ID from webhook: {}", session.getId());
 
-                    PaymentOrder order = paymentOrderRepository.findByStripeSessionId(session.getId()).orElse(null);
+                PaymentOrder order = paymentOrderRepository.findByStripeSessionId(session.getId()).orElse(null);
 
-                    if (order == null) {
-                        logger.error("PaymentOrder with Stripe Session ID {} not found in our database.", session.getId());
-                        return;
+                if (order == null) {
+                    logger.error("PaymentOrder with Stripe Session ID {} not found in our database.", session.getId());
+                    return;
+                }
+
+                logger.info("Found PaymentOrder with ID {}. Current status: {}.", order.getId(), order.getStatus());
+
+                if (order.getStatus() == EPaymentStatus.PENDING) {
+                    logger.info("Order status is PENDING. Updating event to premium...");
+
+                    order.setStatus(EPaymentStatus.PAID);
+                    de.saarland.events.model.Event event = order.getEvent();
+                    event.setPremium(true);
+                    event.setPremiumUntil(ZonedDateTime.now().plusDays(order.getPromotionDays()));
+
+                    eventRepository.save(event);
+                    paymentOrderRepository.save(order);
+                    logger.info("Successfully updated Event ID {} to premium. New status for Order ID {} is PAID.", event.getId(), order.getId());
+
+                    try {
+                        emailService.sendPromotionConfirmationEmail(order.getUser(), event);
+                        logger.info("Promotion confirmation email sent to {}.", order.getUser().getEmail());
+                    } catch (Exception emailEx) {
+                        logger.error("Failed to send promotion confirmation email.", emailEx);
                     }
-
-                    logger.info("Found PaymentOrder with ID {}. Current status: {}.", order.getId(), order.getStatus());
-
-                    if (order.getStatus() == EPaymentStatus.PENDING) {
-                        logger.info("Order status is PENDING. Updating event to premium...");
-
-                        order.setStatus(EPaymentStatus.PAID);
-                        de.saarland.events.model.Event event = order.getEvent();
-                        event.setPremium(true);
-                        event.setPremiumUntil(ZonedDateTime.now().plusDays(order.getPromotionDays()));
-
-                        eventRepository.save(event);
-                        paymentOrderRepository.save(order);
-                        logger.info("Successfully updated Event ID {} to premium. New status for Order ID {} is PAID.", event.getId(), order.getId());
-
-                        try {
-                            emailService.sendPromotionConfirmationEmail(order.getUser(), event);
-                            logger.info("Promotion confirmation email sent to {}.", order.getUser().getEmail());
-                        } catch (Exception emailEx) {
-                            logger.error("Failed to send promotion confirmation email.", emailEx);
-                        }
-                    } else {
-                        logger.warn("Order with ID {} was already processed. Current status: {}. No action taken.", order.getId(), order.getStatus());
-                    }
-                } catch (StripeException e) {
-                    logger.error("Failed to retrieve session from Stripe API.", e);
+                } else {
+                    logger.warn("Order with ID {} was already processed. Current status: {}. No action taken.", order.getId(), order.getStatus());
                 }
             } else {
-                logger.error("Webhook data object is not a Session instance. Actual class: {}", stripeObject.getClass().getName());
+                logger.error("Webhook data object is not a Session instance. Actual class: {}",
+                        stripeObject != null ? stripeObject.getClass().getName() : "null");
             }
         }
     }
