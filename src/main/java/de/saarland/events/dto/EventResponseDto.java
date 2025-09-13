@@ -12,6 +12,7 @@ import java.util.List;
 public class EventResponseDto {
     private Long id;
     private ZonedDateTime eventDate;
+    private ZonedDateTime endDate;
     private CityDto city;
     private String imageUrl;
     private CategoryDto category;

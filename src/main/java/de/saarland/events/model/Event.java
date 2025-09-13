@@ -24,6 +24,9 @@ public class Event {
     @Column(nullable = false)
     private ZonedDateTime eventDate;
 
+    @Column
+    private ZonedDateTime endDate;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "city_id", nullable = false)
     private City city;

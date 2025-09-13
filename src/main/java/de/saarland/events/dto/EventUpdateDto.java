@@ -16,6 +16,8 @@ public class EventUpdateDto {
     @NotNull(message = "Event date cannot be empty")
     private ZonedDateTime eventDate;
 
+    private ZonedDateTime endDate;
+
     @NotNull(message = "City ID cannot be empty")
     private Long cityId;
 
