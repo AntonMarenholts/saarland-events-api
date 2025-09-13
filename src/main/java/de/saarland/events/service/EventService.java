@@ -88,6 +88,11 @@ public class EventService {
             }
         }
 
+
+        if (event.getEndDate() == null) {
+            event.setEndDate(event.getEventDate());
+        }
+
         event.setCreatedBy(user);
         event.setCategory(category);
         event.setCity(city);
@@ -129,6 +134,14 @@ public class EventService {
                 .orElseThrow(() -> new EntityNotFoundException("City with ID " + cityId + " not found"));
 
         existingEvent.setEventDate(updatedEventData.getEventDate());
+
+
+        if (updatedEventData.getEndDate() == null) {
+            existingEvent.setEndDate(updatedEventData.getEventDate());
+        } else {
+            existingEvent.setEndDate(updatedEventData.getEndDate());
+        }
+
         existingEvent.setCity(city);
         existingEvent.setImageUrl(updatedEventData.getImageUrl());
         existingEvent.setCategory(category);
@@ -211,4 +224,3 @@ public class EventService {
         deleteEvent(eventId);
     }
 }
-

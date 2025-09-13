@@ -29,6 +29,7 @@ public class EventMapper {
         EventResponseDto dto = new EventResponseDto();
         dto.setId(event.getId());
         dto.setEventDate(event.getEventDate());
+        dto.setEndDate(event.getEndDate());
         dto.setImageUrl(event.getImageUrl());
         dto.setCity(cityMapper.toDto(event.getCity()));
         dto.setCategory(categoryMapper.toDto(event.getCategory()));
@@ -53,6 +54,7 @@ public class EventMapper {
         }
         Event event = new Event();
         event.setEventDate(dto.getEventDate());
+        event.setEndDate(dto.getEndDate());
         event.setImageUrl(dto.getImageUrl());
 
         event.setTranslations(dto.getTranslations().stream()
@@ -68,6 +70,7 @@ public class EventMapper {
         }
         Event event = new Event();
         event.setEventDate(dto.getEventDate());
+        event.setEndDate(dto.getEndDate());
         event.setImageUrl(dto.getImageUrl());
 
         event.setTranslations(dto.getTranslations().stream()

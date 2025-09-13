@@ -18,6 +18,8 @@ public class EventRequestDto {
     @Future(message = "The event date must be in the future.")
     private ZonedDateTime eventDate;
 
+    private ZonedDateTime endDate;
+
     @NotNull(message = "City ID cannot be empty")
     private Long cityId;
 

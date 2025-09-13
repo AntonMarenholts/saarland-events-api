@@ -1,4 +1,3 @@
-
 package de.saarland.events.specification;
 
 import de.saarland.events.model.EStatus;
@@ -30,7 +29,17 @@ public class EventSpecification {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(criteriaBuilder.equal(root.get("status"), EStatus.APPROVED));
-            predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("eventDate"), ZonedDateTime.now()));
+
+
+            ZonedDateTime now = ZonedDateTime.now();
+            Predicate endDateCondition = criteriaBuilder.greaterThanOrEqualTo(root.get("endDate"), now);
+            Predicate legacyEventCondition = criteriaBuilder.and(
+                    criteriaBuilder.isNull(root.get("endDate")),
+                    criteriaBuilder.greaterThanOrEqualTo(root.get("eventDate"), now)
+            );
+            predicates.add(criteriaBuilder.or(endDateCondition, legacyEventCondition));
+
+
 
             cityName.ifPresent(c -> predicates.add(criteriaBuilder.equal(root.get("city").get("name"), c)));
             categoryId.ifPresent(id -> predicates.add(criteriaBuilder.equal(root.get("category").get("id"), id)));
