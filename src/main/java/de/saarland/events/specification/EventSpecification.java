@@ -40,6 +40,7 @@ public class EventSpecification {
             predicates.add(criteriaBuilder.or(endDateCondition, legacyEventCondition));
 
 
+
             cityName.ifPresent(c -> predicates.add(criteriaBuilder.equal(root.get("city").get("name"), c)));
             categoryId.ifPresent(id -> predicates.add(criteriaBuilder.equal(root.get("category").get("id"), id)));
             categoryName.ifPresent(name -> predicates.add(criteriaBuilder.equal(root.get("category").get("name"), name)));
