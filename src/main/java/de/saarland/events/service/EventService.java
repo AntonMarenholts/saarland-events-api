@@ -16,6 +16,8 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
 
 @Service
 public class EventService {
@@ -45,6 +47,26 @@ public class EventService {
     public Page<Event> findAllAdminEventsByCity(String cityName, Pageable pageable) {
         return eventRepository.findByCityNameAndStatusIn(
                 cityName,
+                Arrays.asList(EStatus.APPROVED, EStatus.REJECTED),
+                pageable
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Event> findAllAdminEventsByCityPast(String cityName, Pageable pageable) {
+        return eventRepository.findByCityNameAndEventDateBeforeAndStatusIn(
+                cityName,
+                ZonedDateTime.now(),
+                Arrays.asList(EStatus.APPROVED, EStatus.REJECTED),
+                pageable
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Event> findAllAdminEventsByCityUpcoming(String cityName, Pageable pageable) {
+        return eventRepository.findByCityNameAndEventDateAfterAndStatusIn(
+                cityName,
+                ZonedDateTime.now(),
                 Arrays.asList(EStatus.APPROVED, EStatus.REJECTED),
                 pageable
         );
