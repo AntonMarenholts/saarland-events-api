@@ -1,3 +1,4 @@
+// src/main/java/de/saarland/events/repository/EventRepository.java
 package de.saarland.events.repository;
 
 import de.saarland.events.dto.CityEventCountDto;
@@ -25,6 +26,9 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
 
     Page<Event> findByCityNameAndStatusIn(String cityName, List<EStatus> statuses, Pageable pageable);
 
+    Page<Event> findByCityNameAndEventDateBeforeAndStatusIn(String cityName, ZonedDateTime date, List<EStatus> statuses, Pageable pageable);
+    Page<Event> findByCityNameAndEventDateAfterAndStatusIn(String cityName, ZonedDateTime date, List<EStatus> statuses, Pageable pageable);
+
     @Query("SELECT COUNT(e) > 0 FROM Event e JOIN e.translations t " +
             "WHERE t.locale = 'de' " +
             "AND lower(t.name) = lower(:name) " +
@@ -47,4 +51,3 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
 
     List<Event> findByIsPremiumTrueAndPremiumUntilBefore(ZonedDateTime now);
 }
-

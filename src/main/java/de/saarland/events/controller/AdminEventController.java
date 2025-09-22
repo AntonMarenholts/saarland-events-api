@@ -37,6 +37,22 @@ public class AdminEventController {
         return ResponseEntity.ok(dtoPage);
     }
 
+    @GetMapping("/by-city/{cityName}/past")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Page<EventResponseDto>> getAdminEventsByCityPast(@PathVariable String cityName, Pageable pageable) {
+        Page<Event> eventsPage = eventService.findAllAdminEventsByCityPast(cityName, pageable);
+        Page<EventResponseDto> dtoPage = eventsPage.map(eventMapper::toResponseDto);
+        return ResponseEntity.ok(dtoPage);
+    }
+
+    @GetMapping("/by-city/{cityName}/upcoming")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Page<EventResponseDto>> getAdminEventsByCityUpcoming(@PathVariable String cityName, Pageable pageable) {
+        Page<Event> eventsPage = eventService.findAllAdminEventsByCityUpcoming(cityName, pageable);
+        Page<EventResponseDto> dtoPage = eventsPage.map(eventMapper::toResponseDto);
+        return ResponseEntity.ok(dtoPage);
+    }
+
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<EventResponseDto>> getAllEventsForAdmin(Pageable pageable) {
